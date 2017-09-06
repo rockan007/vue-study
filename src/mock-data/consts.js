@@ -1,4 +1,11 @@
 export default {
+  MSGHOMEBARS:[{
+    img:'../images/icon_tabbar.png',
+    label:'新建通知'
+  },{
+    img:'../images/icon_tabbar.png',
+    label:'查看通知'
+  }],
   MSGSTYLES: [{
     type: 'text',
     msgtype: 'text',
