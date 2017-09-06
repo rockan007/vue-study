@@ -1,107 +1,110 @@
 <template>
   <div class='weui-uploader'>
-  <div class='weui-uploader__hd'>
-    <p class='weui-uploader__title'>{{getHintInfo()}}</p>
-    <div class='weui-uploader__info'>{{uploadFiles.length}}'/1</div>
+    <div class='weui-uploader__hd'>
+      <p class='weui-uploader__title'>{{getHintInfo()}}</p>
+      <div class='weui-uploader__info'>{{uploadFiles.length}}'/1</div>
     </div>
-  <div class='weui-uploader__bd'>
-    <ul class='weui-uploader__files' id="uploaderFiles">
-      <li v-for="file in uploadFiles" class='weui-uploader__file' v-bind:style="{'background-image':'url('+file.fileurl+')'}"></li>
+    <div class='weui-uploader__bd'>
+      <ul class='weui-uploader__files' id="uploaderFiles">
+        <li v-for="file in uploadFiles" class='weui-uploader__file'
+            v-bind:style="{'background-image':'url('+file.fileurl+')'}"></li>
       </ul>
-    <div class='weui-uploader__input-box' v-on:click="toExtra()">
-      <input v-if="((msgType!==2&&msgType!==5)||uploadReal)&&msgType!==1" id="uploaderInput"
-             class='weui-uploader__input' type="file" v-bind:accept="getAcceptType()" v-on:change="selectFile($event)">
+      <div class='weui-uploader__input-box' v-on:click="toExtra()">
+        <input v-if="((msgType!==2&&msgType!==5)||uploadReal)&&msgType!==1" id="uploaderInput"
+               class='weui-uploader__input' type="file" v-bind:accept="getAcceptType()"
+               v-on:change="selectFile($event)">
       </div>
     </div>
   </div>
 </template>
 <script>
   import router from '../router/index'
+
   export default {
-    name:'extra-file',
-    props:{
-      msgType:{
-        type:Number,
-        default:0
+    name: 'extra-file',
+    props: {
+      msgType: {
+        type: Number,
+        default: 0
       }
     },
-    data(){
+    data () {
       return {
-        uploadFiles:[],
-        uploadReal:false
+        uploadFiles: [],
+        uploadReal: false
       }
     },
-    created:function () {
+    created: function () {
 
     },
-    methods:{
-      toExtra:function(){
-        if((this.msgType == 1 || this.msgType == 2 || this.msgType == 5) && !this.uploadReal) {
+    methods: {
+      toExtra: function () {
+        if ((this.msgType == 1 || this.msgType == 2 || this.msgType == 5) && !this.uploadReal) {
           router.push({
-            name: "extra-publish"
+            name: 'extra-publish'
           })
         }
       },
-      getAcceptType: function() {
-        var acceptType;
-        switch(this.msgType) {
+      getAcceptType: function () {
+        var acceptType
+        switch (this.msgType) {
           case 0:
-            acceptType = "添加文字";
-            break;
+            acceptType = '添加文字'
+            break
           case 1:
-            acceptType = "添加文本";
-            break;
+            acceptType = '添加文本'
+            break
           case 2:
-            acceptType = "image/jpeg,image/png";
-            break;
+            acceptType = 'image/jpeg,image/png'
+            break
           case 3:
-            acceptType = "image/jpeg,image/png";
-            break;
+            acceptType = 'image/jpeg,image/png'
+            break
           case 4:
-            acceptType = "audio/AMR";
-            break;
+            acceptType = 'audio/AMR'
+            break
           case 5:
-            acceptType = "video/mp4";
-            break;
+            acceptType = 'video/mp4'
+            break
           case 6:
-            acceptType = "*";
-            break;
+            acceptType = '*'
+            break
           default:
-            break;
+            break
         }
-        return acceptType;
+        return acceptType
       },
-      getHintInfo: function() {
-        console.log("选择文件时的文件类型：" + this.msgType);
-        var hintInfo;
-        switch(this.msgType) {
+      getHintInfo: function () {
+        console.log('选择文件时的文件类型：' + this.msgType)
+        var hintInfo
+        switch (this.msgType) {
           case 0:
-            hintInfo = "添加文字";
-            break;
+            hintInfo = '添加文字'
+            break
           case 1:
-            hintInfo = "添加文本";
-            break;
+            hintInfo = '添加文本'
+            break
           case 2:
-            hintInfo = "添加图文";
-            break;
+            hintInfo = '添加图文'
+            break
           case 3:
-            hintInfo = "添加图片";
-            break;
+            hintInfo = '添加图片'
+            break
           case 4:
-            hintInfo = "添加语音";
-            break;
+            hintInfo = '添加语音'
+            break
           case 5:
-            hintInfo = "添加视频";
-            break;
+            hintInfo = '添加视频'
+            break
           case 6:
-            hintInfo = "添加文件";
-            break;
+            hintInfo = '添加文件'
+            break
           default:
-            break;
+            break
         }
-        return hintInfo;
+        return hintInfo
       },
-      selectFile:function (event) {
+      selectFile: function (event) {
 
       }
     }

@@ -21,17 +21,17 @@ export default {
     typeName: '图片'
   }, {
     type: 'voice',
-    msgtype: "voice",
+    msgtype: 'voice',
     typeNo: 4,
     typeName: '语音'
   }, {
     type: 'video',
-    msgtype: "video",
+    msgtype: 'video',
     typeNo: 5,
     typeName: '视频'
   }, {
     type: 'file',
-    msgtype: "file",
+    msgtype: 'file',
     typeNo: 6,
     typeName: '文件'
   }]
