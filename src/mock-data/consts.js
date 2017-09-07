@@ -43,5 +43,23 @@ export default {
     msgtype: 'file',
     typeNo: 6,
     typeName: '文件'
-  }]
+  }],
+  MSGBANNERS:[
+    {
+      type:0,
+      content:'全部'
+    },
+    {
+      type:1,
+      content:'已阅读'
+    },
+    {
+      type:2,
+      content:'未阅读'
+    },
+    {
+      type:3,
+      content:"我发的"
+    }
+  ]
 }
