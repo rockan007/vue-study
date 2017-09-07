@@ -1,10 +1,12 @@
 export default {
   MSGHOMEBARS:[{
     img:'../images/icon_tabbar.png',
-    label:'新建通知'
+    label:'新建通知',
+    routerLink:'dynamic-publish'
   },{
     img:'../images/icon_tabbar.png',
-    label:'查看通知'
+    label:'查看通知',
+    routerLink:'message-container'
   }],
   MSGSTYLES: [{
     type: 'text',

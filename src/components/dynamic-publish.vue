@@ -28,7 +28,6 @@
   </div>
 </template>
 <script>
-  import '../assets/weui.min.css'
   import extraFile from './extraFile.vue'
   import consts from '../mock-data/consts'
 

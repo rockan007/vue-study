@@ -1,15 +1,19 @@
 <template>
-  <div class="page tabbar js_show">
-    <div class="page__bd" style="height:100%;">
-      <div class="weui-tab">
-        <div class="weui-tab__panel"></div>
-        <div class="weui-tabbar">
-          <a v-for="bar in bars" class="weui-tabbar__item weui-tabbar__item_on">
+  <div class="container" id="container">
+    <div class="page tabbar js_show">
+      <div class="page__bd" style="height:100%;">
+        <div class="weui-tab">
+          <div class="weui-tab__panel">
+            <router-view></router-view>
+          </div>
+          <div class="weui-tabbar">
+            <router-link   v-for="(bar,index) in bars" v-bind:key="index" class="weui-tabbar__item" v-bind:to="bar.routerLink" v-bind:class="[{'weui-bar__item_on':index==0}]">
         <span class="tabbar-span">
           <img src="../images/icon_tabbar.png"/>
         </span>
-            <p class="weui-tabbar__label">{{bar.label}}</p>
-          </a>
+              <p class="weui-tabbar__label">{{bar.label}}</p>
+            </router-link>
+          </div>
         </div>
       </div>
     </div>
@@ -31,5 +35,8 @@
   .tabbar-span {
     display: inline-block;
     position: relative;
+  }
+  .weui-tab__panel {
+    padding-bottom: 80px;
   }
 </style>

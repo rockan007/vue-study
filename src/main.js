@@ -3,7 +3,8 @@
 import Vue from 'vue'
 import App from './App'
 import router from './router'
-import './assets/weui.min.css'
+import '../static/css/weui.min.css'
+import '../static/css/weui-extra.min.css'
 
 Vue.config.productionTip = false
 
