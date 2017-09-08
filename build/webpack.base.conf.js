@@ -2,7 +2,7 @@ var path = require('path')
 var fs = require('fs')
 var utils = require('./utils')
 var config = require('../config')
-var vueLoaderConfig = require('./vue-loader.conf');
+var vueLoaderConfig = require('./vue-loader.conf')
 
 function resolve (dir) {
   return path.join(__dirname, '..', dir)
@@ -38,6 +38,16 @@ module.exports = {
       //     formatter: require('eslint-friendly-formatter')
       //   }
       // },
+      {
+        test: require.resolve('jquery'),
+        use: [{
+          loader: 'expose-loader',
+          options: 'jQuery'
+        }, {
+          loader: 'expose-loader',
+          options: '$'
+        }]
+      },
       {
         test: /\.vue$/,
         loader: 'vue-loader',

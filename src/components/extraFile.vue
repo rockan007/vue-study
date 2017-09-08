@@ -1,17 +1,16 @@
 <template>
   <div class='weui-uploader'>
-    <div class='weui-uploader__hd'>
-      <p class='weui-uploader__title'>{{getHintInfo()}}</p>
-      <div class='weui-uploader__info'>{{uploadFiles.length}}'/1</div>
-    </div>
+    <!--<div class='weui-uploader__hd'>-->
+      <!--&lt;!&ndash;<p class='weui-uploader__title'>{{getHintInfo()}}</p>&ndash;&gt;-->
+      <!--<div class='weui-uploader__info'>{{uploadFiles.length}}/1</div>-->
+    <!--</div>-->
     <div class='weui-uploader__bd'>
       <ul class='weui-uploader__files' id="uploaderFiles">
         <li v-for="file in uploadFiles" class='weui-uploader__file'
             v-bind:style="{'background-image':'url('+file.fileurl+')'}"></li>
       </ul>
-      <div class='weui-uploader__input-box' v-on:click="toExtra()">
-        <input v-if="((msgType!==2&&msgType!==5)||uploadReal)&&msgType!==1" id="uploaderInput"
-               class='weui-uploader__input' type="file" v-bind:accept="getAcceptType()"
+      <div class='weui-uploader__input-box'>
+        <input  id="uploaderInput" class='weui-uploader__input' type="file" v-bind:accept="getAcceptType()"
                v-on:change="selectFile($event)">
       </div>
     </div>
@@ -25,7 +24,7 @@
     props: {
       msgType: {
         type: Number,
-        default: 0
+        default: 1
       }
     },
     data () {
@@ -38,13 +37,6 @@
 
     },
     methods: {
-      toExtra: function () {
-        if ((this.msgType == 1 || this.msgType == 2 || this.msgType == 5) && !this.uploadReal) {
-          router.push({
-            name: 'extra-publish'
-          })
-        }
-      },
       getAcceptType: function () {
         var acceptType
         switch (this.msgType) {

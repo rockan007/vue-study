@@ -7,10 +7,11 @@
             <router-view></router-view>
           </div>
           <div class="weui-tabbar">
-            <router-link   v-for="(bar,index) in bars" v-bind:key="index" class="weui-tabbar__item" v-bind:to="bar.routerLink" v-bind:class="[{'weui-bar__item_on':index==0}]">
-        <span class="tabbar-span">
-          <img src="../images/icon_tabbar.png"/>
-        </span>
+            <router-link   v-for="(bar,index) in bars" v-bind:key="index" class="weui-tabbar__item"
+                           v-bind:to="bar.routerLink" active-class="weui-bar__item_on">
+              <span class="tabbar-span">
+                <img src="../images/icon_tabbar.png"/>
+              </span>
               <p class="weui-tabbar__label">{{bar.label}}</p>
             </router-link>
           </div>
@@ -26,8 +27,11 @@
     name: 'msg-home',
     data: function () {
       return {
-        bars: consts.MSGHOMEBARS
+        bars: consts.MSGHOMEBARS,
+        activeLink:0
       }
+    },
+    methods:{
     }
   }
 </script>

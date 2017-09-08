@@ -1,11 +1,11 @@
-import Vue from 'vue'
-import Router from 'vue-router'
-import dynamicPublish from '../components/dynamic-publish.vue'
-import extraPublish from '../components/extra-publish.vue'
-import msgHome from '../components/message-home.vue'
-import msgContainer from '../components/message-container.vue'
-import msgDetail from '../components/message-detail.vue'
-
+import Vue from 'vue';
+import Router from 'vue-router';
+import dynamicPublish from '../components/dynamic-publish.vue';
+import extraPublish from '../components/extra-publish.vue';
+import msgHome from '../components/message-home.vue';
+import msgContainer from '../components/message-container.vue';
+import msgDetail from '../components/message-detail.vue';
+import choosePerson from '../components/choose-person.vue';
 Vue.use(Router)
 
 export default new Router({
@@ -45,6 +45,11 @@ export default new Router({
       path: '/message-detail/:id',
       name: 'message-detail',
       component: msgDetail
+    },
+    {
+      path:'/choose-person/:id',
+      name:'choose-person',
+      component:choosePerson
     }
   ]
 })

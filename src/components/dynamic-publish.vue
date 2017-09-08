@@ -1,35 +1,41 @@
 <template>
   <div>
     <div class="weui-cells">
-      <div class="weui-cell weui-cell_select weui-cell_select-after">
-        <div class="weui-cell__hd">
-          <label for class="weui-label">消息类型</label>
-        </div>
+      <div class="weui-cell">
         <div class="weui-cell__bd">
-          <select class="weui-select" name="select" v-on:change="getType">
-            <option v-for="(msgStyle,index) in msgStyles" v-bind:selected="msgStyle.typeNo===msgType"
-                    v-bind:value="msgStyle.typeNo">{{msgStyle.typeName}}
-            </option>
-          </select>
+          <input class="weui-input" v-model.trim="title" type="text" placeholder="在此输入通知标题"/>
+        </div>
+      </div>
+      <div v class="weui-cell">
+        <div class="weui-cell_bd">
+          <textarea rows="10" v-model.trim="description" class="weui-textarea" placeholder="在此输入通知内容"></textarea>
+          <extra-file v-bind:msgType="msgType"></extra-file>
         </div>
       </div>
       <div class="weui-cell weui-cell_access" v-on:click="routeToPersons">
         <div class="weui-cell__bd">
-          人员选择
+          通知人员选择
         </div>
         <div class="weui-cell__ft">
           {{chosePersons.length > 99 ? "99" : chosePersons.length}}
         </div>
       </div>
+      <div class="weui-cell weui-cell_switch">
+        <div class="weui-cell__bd">
+          是否短信同步
+        </div>
+        <div class="weui-cell__ft">
+          <input class="weui-switch" type="checkbox"/>
+        </div>
+      </div>
     </div>
-    <textarea v-if="msgType<1" v-model.trim.lazy="content" v-bind:rows=10 v-bind:style="{width:'100%'}"></textarea>
-    <extra-file v-else v-bind:msgType="msgType"></extra-file>
     <a class="weui-btn weui-btn_primary" v-on:click="publishMethod">发布</a>
   </div>
 </template>
 <script>
   import extraFile from './extraFile.vue'
-  import consts from '../mock-data/consts'
+  import consts from '../mock-data/consts';
+  import router from '../router/index';
 
   export default {
     name: 'dynamic-publish',
@@ -47,8 +53,10 @@
     },
     data: function () {
       return {
-        msgType: 0,
-        msgStyles: consts.MSGSTYLES
+        msgType:1,
+        msgStyles: consts.MSGSTYLES,
+        title: '',
+        description: ''
       }
     },
     created: function () {
@@ -60,7 +68,12 @@
 
       },
       routeToPersons: function () {
-
+        router.push({
+          name:'choose-person',
+          params:{
+            id:-1
+          }
+        });
       },
       getType: function (event) {
         console.log(event.target.value)

@@ -1,12 +1,20 @@
 export default {
-  MSGHOMEBARS:[{
-    img:'../images/icon_tabbar.png',
-    label:'新建通知',
-    routerLink:'dynamic-publish'
-  },{
-    img:'../images/icon_tabbar.png',
-    label:'查看通知',
-    routerLink:'message-container'
+  MAINURL: 'https://jsypay.jiaobaowang.net/wxth/appschweb/schwebapi.aspx',
+  CONFIGURL: 'https://jsypay.jiaobaowang.net/wxth/jssdkapi.aspx',
+  UPLOADURL: 'https://jsypay.jiaobaowang.net/wxth/appschweb/FileUpLoad.ashx',
+  KEY_DEPARTS: 'key-departments',
+  KEY_CHOOSE_PERSONS: 'key-choosePersons',
+  KEY_CHOOSE_DEPARTS: 'key-chooseDeparts',
+  KEY_CHOSE_MAP: 'key-choseMap',
+  KEY_DEPART_POSITION: 'key-depart-position',
+  MSGHOMEBARS: [{
+    img: '../images/icon_tabbar.png',
+    label: '新建通知',
+    routerLink: 'dynamic-publish'
+  }, {
+    img: '../images/icon_tabbar.png',
+    label: '查看通知',
+    routerLink: 'message-container'
   }],
   MSGSTYLES: [{
     type: 'text',
@@ -44,22 +52,22 @@ export default {
     typeNo: 6,
     typeName: '文件'
   }],
-  MSGBANNERS:[
+  MSGBANNERS: [
     {
-      type:0,
-      content:'全部'
+      type: 0,
+      content: '全部'
     },
     {
-      type:1,
-      content:'已阅读'
+      type: 1,
+      content: '已阅读'
     },
     {
-      type:2,
-      content:'未阅读'
+      type: 2,
+      content: '未阅读'
     },
     {
-      type:3,
-      content:"我发的"
+      type: 3,
+      content: '我发的'
     }
   ]
 }
