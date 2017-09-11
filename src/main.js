@@ -5,7 +5,6 @@ import App from './App'
 import router from './router'
 import './assets/css/weui.min.css'
 import './assets/css/weui-extra.min.css'
-import $ from 'jquery';
 
 /* eslint-disable no-new */
 new Vue({

@@ -1,12 +1,14 @@
 export default {
-  MAINURL: 'https://jsypay.jiaobaowang.net/wxth/appschweb/schwebapi.aspx',
-  CONFIGURL: 'https://jsypay.jiaobaowang.net/wxth/jssdkapi.aspx',
-  UPLOADURL: 'https://jsypay.jiaobaowang.net/wxth/appschweb/FileUpLoad.ashx',
-  KEY_DEPARTS: 'key-departments',
-  KEY_CHOOSE_PERSONS: 'key-choosePersons',
-  KEY_CHOOSE_DEPARTS: 'key-chooseDeparts',
+  MAINURL: 'https://jsypay.jiaobaowang.net/wxth/appschweb/schwebapi.aspx',//主url
+  CONFIGURL: 'https://jsypay.jiaobaowang.net/wxth/jssdkapi.aspx',//微信config设置获取url
+  UPLOADURL: 'https://jsypay.jiaobaowang.net/wxth/appschweb/FileUpLoad.ashx',//文件上传url
+  KEY_DEPARTS: 'key-departments',//部门数据
+  KEY_TREE_DEPARTS: 'key-tree-departs',//树形结构的部门数据
+  KEY_ALL_CHOOSE_PERSON: 'key-all-choose-person',//全部已选人员，包括已选部门内人员
+  KEY_CHOOSE_PERSONS: 'key-choosePersons',//已选人员
+  KEY_CHOOSE_DEPARTS: 'key-chooseDeparts',//已选部门
   KEY_CHOSE_MAP: 'key-choseMap',
-  KEY_DEPART_POSITION: 'key-depart-position',
+  KEY_DEPART_POSITION: 'key-depart-position',//当前部门位置
   MSGHOMEBARS: [{
     img: '../images/icon_tabbar.png',
     label: '新建通知',
