@@ -1,6 +1,6 @@
 <template>
   <div>
-    <router-view v-on:choosePersons="getChoosePersons" v-on:chooseDeparts="getChooseDeparts"
+    <router-view v-on:togglePerson="getTogglePersons" v-on:toggleDepart="getToggleDeparts"
                  v-bind:class="[{'margin-bottom50':choseAllPersons.size>0}]"></router-view>
     <div v-if="choseAllPersons.size>0" class="weui-flex fixed_bottom">
       <div class="weui-flex__item">
@@ -17,6 +17,9 @@
   </div>
 </template>
 <script>
+  import consts from '../mock-data/consts'
+  import events from '../utils/events'
+
   export default {
     name: 'choose-container',
     props: {},
@@ -31,11 +34,31 @@
       chooseDepartsPersons: function () {
         this.$emit('choose', this.choseAllPersons, this.choosePersons, this.chooseDeparts)
       },
-      getChoosePersons: function (persons) {
+      getTogglePersons: function (person, isAdd) {
+        //放置在已选列表中
+        console.log('放置数据前choosePersons：' + this.choosePersons)
+        if ((isAdd && !this.choseAllPersons.has(person.userid)) || !isAdd) {
+          this.choosePersons = events.toggleMapValue(this.choosePersons, person.userid, person.name, isAdd)
+          events.setSessionSet(consts.KEY_CHOOSE_PERSONS, this.choosePersons)
+        }
+        console.log('放置数据后choosePersons：' + this.choosePersons)
+        //放置在所有已选人员中
+        console.log('放置数据前AllPersons：' + this.choseAllPersons)
+        events.toggleValueInSet(this.choseAllPersons, person.userid, isAdd)
+        events.setSessionSet(consts.KEY_ALL_CHOOSE_PERSON, this.choseAllPersons)
+        console.log('放置数据后AllPersons：' + this.choseAllPersons)
 
       },
-      getChooseDeparts: function (depart, persons) {
-
+      getToggleDeparts: function (depart, persons, isAdd) {
+        console.log('放置数据前chooseDeparts:' + this.chooseDeparts)
+        events.toggleMapValue(this.chooseDeparts, depart.value, depart.title, isAdd)
+        console.log('放置数据后chooseDeparts:' + this.chooseDeparts)
+        console.log('放置数据前choseAllPersons' + this.choseAllPersons)
+        for (let i in persons) {
+          events.toggleValueInSet(this.choseAllPersons, persons[i].userid, isAdd)
+        }
+        events.setSessionSet(consts.KEY_ALL_CHOOSE_PERSON, this.choseAllPersons)
+        console.log('放置数据后choseAllPersons' + this.choseAllPersons)
       }
     }
   }

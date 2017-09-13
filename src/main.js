@@ -7,6 +7,9 @@ import './assets/css/weui.min.css'
 import './assets/css/weui-extra.min.css'
 
 /* eslint-disable no-new */
+/**
+ * 首页
+ */
 new Vue({
   el: '#app',
   router,

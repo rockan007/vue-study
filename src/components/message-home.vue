@@ -1,3 +1,4 @@
+<!--消息通知主界面-->
 <template>
   <div class="container" id="container">
     <div class="page tabbar js_show">

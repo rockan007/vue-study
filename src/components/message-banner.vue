@@ -1,3 +1,4 @@
+<!--查看通知導航-->
 <template>
   <div class="weui-flex">
     <div v-for="(msgBanner,index) in msgBanners" class="weui-flex__item"

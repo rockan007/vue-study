@@ -1,3 +1,4 @@
+<!--消息通知界面-->
 <template>
   <div>
     <msg-search></msg-search>

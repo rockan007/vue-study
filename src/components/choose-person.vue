@@ -9,9 +9,9 @@
                v-on:change="togglePerson(item,$event)">
         <i class="weui-icon-checked"></i>
       </div>
-      <div class="weui-cell__bd">
+      <divx class="weui-cell__bd">
         <p>{{item.name}}</p>
-      </div>
+      </divx>
     </label>
     <a v-for="(item,index) in curDepartInfo.departList" class="weui-cell weui-cell_access">
       <div class="weui-cell__hd">
@@ -88,7 +88,7 @@
       '$route' (to, from) {
         console.log('当前路由id:' + this.$route.params.id)
         console.log('当前路由的路径：' + this.$route.params.path)
-        this.getCurDepartInfo()
+        this.getAllDepartsList()
       },
     },
     methods: {
@@ -98,6 +98,7 @@
       getAllDepartsList: function () {
         console.log('*********getAllpersonList******')
         let com = this
+        com.getParentList()
 //        com.rechargeList()
         com.isLoading = true
         if (events.getSessionArray(consts.KEY_TREE_DEPARTS.length > 0)) {
@@ -151,10 +152,10 @@
        *  @param {Number} type
        */
       setItemsStatus: function (items, type) {
-        let parentDepart = this.getParentDepart()
-        if (parentDepart !== null && parentDepart.isChecked) {
+
+        if (this.curDepartInfo.isChecked) {//如何判断此部门已全选
           this.isAllChecked = true
-          this.setCurDepartChecked()
+          this.setCurListChecked()
           return
         }
         if (type) {//部门
@@ -163,12 +164,24 @@
           this.setPersonsStatus(items)
         }
       },
-      setCurDepartChecked: function () {
-        this.curDepartInfo.children = this.curDepartInfo.children.map(function (depart) {
+      /**
+       * 设置当前部门的列表的选择状态
+       */
+      setCurListChecked: function () {
+        //此部门已选，则此部门的子部门设置全选
+        this.curDepartInfo.departList = this.curDepartInfo.departList.map(function (depart) {
+
+          events.toggleValueInSessionSet(consts.KEY_ALL_CHOOSE_DEPARTS, depart.value, true)
           return depart.isChecked = true
         })
-
+        //此部门已选，则此部门的人员设置全选
+        this.curDepartInfo.personList = this.curDepartInfo.personList.map(function (person) {
+          return person.isChecked = true
+        })
       },
+      /**
+       * 获取的父部门信息
+       */
       getParentDepart: function () {
         let departList = events.getSessionArray(consts.KEY_TREE_DEPARTS)
         let arrPath = this.path.split('-')
@@ -176,7 +189,6 @@
           return this.getNodeInTree(departList, arrPath.splice(arrPath.length - 1))
         }
         return null
-
       },
       /**
        * 设置部门状态
@@ -187,10 +199,15 @@
       },
       /**
        * 设置人员状态
+       * 如果人员存在于已选列表,则标记选择，否则，标记未选
        *
        */
       setPersonsStatus: function (persons) {
-
+        for (let i in persons) {
+          if (persons[i].department.length > 1) {
+            persons[i].isChecked = events.isExistInSessionSet(consts.KEY_ALL_CHOOSE_PERSON, persons[i].userId)
+          }
+        }
       },
       /**
        * 选择或取消选择人员的响应方法
@@ -201,8 +218,8 @@
         console.log('********togglePerson人员选择********')
         let isAdd = event.target.checked
         console.log('********关注的人事件传递********')
-        this.$emit('togglePerson', [item], isAdd)
-        this.toggleSessionByPerson(item, isAdd)
+        this.$emit('togglePerson', item, isAdd)
+        this.toggleDepartsByPerson(item, isAdd)
         this.setItemsStatus(this.personList, 0)
       },
       /**
@@ -210,21 +227,48 @@
        * @param {Object} person 选择或取消选择的信息
        * @param {Object} isAdd 添加删除逻辑
        */
-      toggleSessionByPerson: function (person, isAdd) { //
+      toggleDepartsByPerson: function (person, isAdd) { //
         console.log('********changeSessionByPerson人员选择后的响应********')
         let com = this
-        person.department.forEach(function (departId) {
-          com.togglePersonInDepart(departId, person, isAdd)
-          if (!isAdd) { //如果是刪除 刪除其所在所有部门的选择状态
-            events.toggleValueInSessionSet(consts.KEY_CHOOSE_DEPARTS, departId, isAdd)
+        if (person.deparment.length === 1) {//人员只存在于此部门中，删除人员
+          if (!isAdd) {//取消选择人员
+            if (com.curDepartInfo.isChecked) {
+              com.curDepartInfo.isChecked = false
+              com.isAllChecked = false
+
+            }
+          } else {//选择人员
+
           }
-        })
+        }
       },
+      toggleSingleDepartById: function (departId, isAdd) {
+        let departList = events.getSessionArray(consts.KEY_TREE_DISORDER_DEPARTS)
+        for (let i in departList) {
+          if (departList[i].value === departId) {
+
+          }
+        }
+        if (isAdd) {
+
+        } else {
+
+        }
+      },
+      getDepartInList: function () {
+
+      },
+      toggleSingleDepart: function () {
+
+      },
+      /**
+       *
+       */
       togglePersonInDepart: function (departId, person, isAdd) {
-        console.log('********togglePersonInDepart相关部门内数据的存取********')
-        let personArr = events.toggleValueInArray(events.getSessionMapValue(consts.KEY_CHOSE_MAP, departId), person.userid, isAdd)
-        events.setSessionMapValue(consts.KEY_CHOSE_MAP, departId, personArr)
-        console.log('保存的map数据:' + JSON.stringify(events.getSessionMap(consts.KEY_CHOSE_MAP)))
+
+      },
+      toggleCurDepartChecked: function () {
+
       },
 
       /**
@@ -307,6 +351,32 @@
             }
           } else {
             roots.push(node)
+          }
+        }
+        console.log('重拍数组后的数据：' + JSON.stringify(roots))
+        return roots
+      },
+      getParentList: function (nodes) {
+        if (!nodes || nodes.length === 0) {
+          nodes = this.nodes
+        }
+        nodes.sort(function (a, b) {
+          return a.value - b.value
+        })
+        let map = {},
+          node,
+          roots = []
+        for (let i = 0; i < nodes.length; i++) {
+          node = nodes[i]
+
+          map[node.value] = i // use map to look-up the parents
+          roots.push(node)
+          if (node.parentvalue > 0) {
+            if (node.parentvalue === 1) {
+              nodes[i].parentDepart = nodes[map[-1]]
+            } else {
+              nodes[i].parentDepart = nodes[map[node.parentvalue]]
+            }
           }
         }
         console.log('重拍数组后的数据：' + JSON.stringify(roots))

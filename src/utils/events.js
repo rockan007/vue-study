@@ -1,12 +1,12 @@
 export default {
   getSessionArray: function (key) {
-      if(sessionStorage.getItem(key)){
-        return JSON.parse(sessionStorage.getItem(key))
-      }
-      return [];
+    if (sessionStorage.getItem(key)) {
+      return JSON.parse(sessionStorage.getItem(key))
+    }
+    return []
   },
-  setSessionArray:function (key,arr) {
-     sessionStorage.setItem(key,JSON.stringify(arr))
+  setSessionArray: function (key, arr) {
+    sessionStorage.setItem(key, JSON.stringify(arr))
   },
   /**
    * 在本地储存数组中 添加 或删除 value
@@ -19,11 +19,21 @@ export default {
     console.log('获取的本地的值：' + JSON.stringify(set))
     sessionStorage.setItem(key, JSON.stringify(this.toggleValueInSet(set, value, isAdd)))
   },
+  /**
+   *
+   * @param {String}key
+   * @param {Set}set
+   */
+  setSessionSet: function (key, set) {
+    sessionStorage.setItem(key, JSON.stringify(set))
+  },
   toggleValueInSet: function (set, value, isAdd) {
     if (isAdd) {
       set.add(value)
     } else {
-      set.delete(value)
+      if (set.has(value)) {
+        set.delete(value)
+      }
     }
     return set
   },
@@ -60,10 +70,18 @@ export default {
     }
     return null
   },
-  setSessionMapValue: function (storageKey, key, value) {
-    let map = this.getSessionMap(storageKey)
-    map.set(key, value)
+  toggleMapValue:function (map,key,value,isAdd) {
+    if(isAdd){
+      map.set(key, value)
+    }else{
+      map.delete(key)
+    }
     sessionStorage.setItem(storageKey, JSON.stringify([...map]))
     console.log('****setSessionMapValue***放置的本地值：' + JSON.stringify(map))
+    return map;
+  },
+  toggleSessionMapValue: function (storageKey, key, value, isAdd) {
+    let map = this.getSessionMap(storageKey)
+    this.toggleMapValue(map,key,value,isAdd);
   }
 }

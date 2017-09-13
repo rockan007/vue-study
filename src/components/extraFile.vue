@@ -1,3 +1,4 @@
+<!--文件选择组件-->
 <template>
   <div class='weui-uploader'>
     <!--<div class='weui-uploader__hd'>-->

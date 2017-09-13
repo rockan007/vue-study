@@ -12,7 +12,7 @@ export default {
       type: 'findpage'
     }), function (response) {
       console.log('获取的部门列表值：' + JSON.stringify(response))
-      if (response.RspCode == 0) {
+      if (response.RspCode === '0000') {
         callback(response.RspData)
       }
     })
@@ -34,7 +34,7 @@ export default {
       callcol: callcol
     }), function (response) {
       console.log('获取的部门人员列表列表值：' + JSON.stringify(response))
-      if (response.RspCode == 0) {
+      if (response.RspCode === '0000') {
         callback(response.RspData)
       } else {
         callback([])

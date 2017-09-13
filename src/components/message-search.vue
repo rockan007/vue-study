@@ -1,3 +1,4 @@
+<!--组件：搜索-->
 <template>
   <div class="weui-search-bar" id="searchBar">
     <form class="weui-search-bar__form">

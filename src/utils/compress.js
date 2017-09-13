@@ -1,3 +1,6 @@
+/**
+ * 图片压缩和上传
+ */
 export default {
   uploadImg: function (file, maxSize, callback) {
     maxSize = maxSize * 1024 * 1024
