@@ -1,16 +1,16 @@
 <template>
   <div>
-    <router-view v-on:togglePerson="getTogglePersons" v-on:toggleDepart="getToggleDeparts"
-                 v-bind:class="[{'margin-bottom50':choseAllPersons.size>0}]"></router-view>
-    <div v-if="choseAllPersons.size>0" class="weui-flex fixed_bottom">
-      <div class="weui-flex__item">
+    <router-view v-on:togglePerson="getTogglePersons"
+                 v-bind:class="[{'margin-bottom50':chosePersons.length>0}]"></router-view>
+    <div v-if="chosePersons.length>0" class="weui-flex fixed_bottom">
+      <div class="weui-flex__item" v-on:click="routerToPub">
         <a class="weui-btn weui-btn_default">
           取消
         </a>
       </div>
       <div class="weui-flex__item" v-on:click="chooseDepartsPersons">
         <a class="weui-btn weui-btn_primary">
-          确定({{choseAllPersons.size > 99 ? "99+" : choseAllPersons.size}})
+          确定({{chosePersons.length > 99 ? "99+" :chosePersons.length}})
         </a>
       </div>
     </div>
@@ -19,47 +19,58 @@
 <script>
   import consts from '../mock-data/consts'
   import events from '../utils/events'
+  import router from '../router/index'
+  import jQuery from 'jquery'
 
   export default {
     name: 'choose-container',
     props: {},
     data: function () {
       return {
-        choseAllPersons: new Set(),
-        choosePersons: new Map(),
-        chooseDeparts: new Map()
+        chosePersons:events.getSessionArray(consts.KEY_CHOOSE_PERSONS)
       }
     },
     methods: {
       chooseDepartsPersons: function () {
-        this.$emit('choose', this.choseAllPersons, this.choosePersons, this.chooseDeparts)
+        this.$emit('chosePersons', this.chosePersons)
+        this.routerToPub();
       },
-      getTogglePersons: function (person, isAdd) {
-        //放置在已选列表中
-        console.log('放置数据前choosePersons：' + this.choosePersons)
-        if ((isAdd && !this.choseAllPersons.has(person.userid)) || !isAdd) {
-          this.choosePersons = events.toggleMapValue(this.choosePersons, person.userid, person.name, isAdd)
-          events.setSessionSet(consts.KEY_CHOOSE_PERSONS, this.choosePersons)
+      routerToPub: function() {
+        let pos = this.getPosition();
+        console.log("@@@@@com-persen@@@@@导向发布页面");
+        router.go(-parseInt(pos));
+      },
+      getPosition: function() {
+        let id = 1;
+        if(parseInt(this.$route.params.id) > 0) {
+          id = parseInt(this.$route.params.id)
         }
-        console.log('放置数据后choosePersons：' + this.choosePersons)
-        //放置在所有已选人员中
-        console.log('放置数据前AllPersons：' + this.choseAllPersons)
-        events.toggleValueInSet(this.choseAllPersons, person.userid, isAdd)
-        events.setSessionSet(consts.KEY_ALL_CHOOSE_PERSON, this.choseAllPersons)
-        console.log('放置数据后AllPersons：' + this.choseAllPersons)
-
+        return events.getSessionMapValue(consts.KEY_DEPART_POSITION, id);
       },
-      getToggleDeparts: function (depart, persons, isAdd) {
-        console.log('放置数据前chooseDeparts:' + this.chooseDeparts)
-        events.toggleMapValue(this.chooseDeparts, depart.value, depart.title, isAdd)
-        console.log('放置数据后chooseDeparts:' + this.chooseDeparts)
-        console.log('放置数据前choseAllPersons' + this.choseAllPersons)
+      getTogglePersons: function (persons, isAdd) {
+        console.log('000000#######choose-person.html######' + JSON.stringify(persons) + '是否添加' + isAdd)
+        if (isAdd) {
+          this.chosePersons = this.chosePersons.concat(persons)
+        } else {
+          this.delPerson(persons)
+        }
+        sessionStorage.setItem(consts.KEY_CHOOSE_PERSONS, JSON.stringify(this.chosePersons))
+      },
+      delPerson: function (persons) {
+        let com = this
+        this.chosePersons = this.chosePersons.filter(function (chosePerson) {
+          return !com.isExistInDelPersons(chosePerson, persons)
+        })
+        console.log('删除人员后的值：' + JSON.stringify(this.chosePersons))
+      },
+      isExistInDelPersons: function (person, persons) {
         for (let i in persons) {
-          events.toggleValueInSet(this.choseAllPersons, persons[i].userid, isAdd)
+          if (persons[i].userid === person.userid) {
+            return true
+          }
         }
-        events.setSessionSet(consts.KEY_ALL_CHOOSE_PERSON, this.choseAllPersons)
-        console.log('放置数据后choseAllPersons' + this.choseAllPersons)
-      }
+        return false
+      },
     }
   }
 </script>
@@ -70,7 +81,6 @@
     left: 0;
     right: 0;
   }
-
   .margin-bottom50 {
     margin-bottom: 50px;
   }

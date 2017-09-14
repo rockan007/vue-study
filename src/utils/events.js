@@ -1,87 +1,79 @@
 export default {
-  getSessionArray: function (key) {
-    if (sessionStorage.getItem(key)) {
-      return JSON.parse(sessionStorage.getItem(key))
-    }
-    return []
-  },
-  setSessionArray: function (key, arr) {
-    sessionStorage.setItem(key, JSON.stringify(arr))
-  },
   /**
    * 在本地储存数组中 添加 或删除 value
-   * @param {String} key 键值
+   * @param {Object} key 键值
    * @param {Object} value 要存储或删除的值
    * @param {Object} isAdd 0删除 1添加
    */
-  toggleValueInSessionSet: function (key, value, isAdd) {
-    let set = this.getSessionSet(key)
-    console.log('获取的本地的值：' + JSON.stringify(set))
-    sessionStorage.setItem(key, JSON.stringify(this.toggleValueInSet(set, value, isAdd)))
+  toggleValueInSessionArray: function (key, value, isAdd) {
+    let arr = this.getSessionArray(key)
+    console.log('获取的本地的值：' + JSON.stringify(arr))
+    sessionStorage.setItem(key, JSON.stringify(this.toggleValueInArray(arr, value, isAdd)))
   },
   /**
-   *
-   * @param {String}key
-   * @param {Set}set
+   * 数组中删除或添加值
+   * @param {Object} arr 数组
+   * @param {Object} value 要添加或删除的值
+   * @param {Object} isAdd 0删除 1添加
    */
-  setSessionSet: function (key, set) {
-    sessionStorage.setItem(key, JSON.stringify(set))
-  },
-  toggleValueInSet: function (set, value, isAdd) {
+  toggleValueInArray: function (arr, value, isAdd) {
+    console.log('是否添加数据？' + isAdd + ',要处理的值:' + value)
+    let arrs = this.isExistInArray(arr, value)
     if (isAdd) {
-      set.add(value)
+      if (arrs[1] < 0) {
+        arrs[0].push(value)
+      }
     } else {
-      if (set.has(value)) {
-        set.delete(value)
+      if (arrs[1] >= 0) {
+        arrs[0].splice(arrs[1], 1)
       }
     }
-    return set
+    console.log('加载或删除后的数组：' + JSON.stringify(arrs[0]))
+    return arrs[0]
   },
   /**
    * 获取存储在本地的localStorage
-   * @param {String} key 数组对应的key值
+   * @param {Object} key 数组对应的key值
    */
-  getSessionSet: function (key) {
-    let set
+  getSessionArray: function (key) {
+    let arr
     if (sessionStorage.getItem(key)) {
-      set = new Set(JSON.parse(sessionStorage.getItem(key)))
+      arr = JSON.parse(sessionStorage.getItem(key))
     } else {
-      set = new Set()
+      arr = []
     }
-    console.log('获取的本地存储数组：' + JSON.stringify(set))
-    return set
+    console.log('获取的本地存储数组：' + JSON.stringify(arr))
+    return arr
   },
-  isExistInSessionSet: function (key, value) {
-    let set = this.getSessionArray(key)
-    return set.has(value)
+  isExistInSessionArray: function (key, value) {
+    let arr = this.getSessionArray(key)
+    return this.isExistInArray(arr, value)
+  },
+  isExistInArray: function (arr, value) {
+    let arrs = [arr, arr.indexOf(value)]
+    console.log('获取的是否值是否存在于数组中：' + JSON.stringify(arrs))
+    return arrs
   },
   getSessionMap: function (key) {
     console.log('****getSessionMap***获取的本地值:' + sessionStorage.getItem(key))
     if (sessionStorage.getItem(key)) {
-      return new Map(JSON.parse(sessionStorage.getItem(key)))
+      return JSON.parse(sessionStorage.getItem(key))
     }
-    return new Map()
+    return {}
   },
   getSessionMapValue: function (storageKey, key) {
     let map = this.getSessionMap(storageKey)
     console.log('***getSessionMapValue***获取的部门已选择的人的数组' + JSON.stringify(map))
-    if (map.has(key)) {
-      return map.get(key)
+    if (map[key]) {
+      return map[key]
     }
-    return null
+    return []
   },
-  toggleMapValue:function (map,key,value,isAdd) {
-    if(isAdd){
-      map.set(key, value)
-    }else{
-      map.delete(key)
-    }
-    sessionStorage.setItem(storageKey, JSON.stringify([...map]))
-    console.log('****setSessionMapValue***放置的本地值：' + JSON.stringify(map))
-    return map;
-  },
-  toggleSessionMapValue: function (storageKey, key, value, isAdd) {
+  setSessionMapValue: function (storageKey, key, value) {
     let map = this.getSessionMap(storageKey)
-    this.toggleMapValue(map,key,value,isAdd);
+    map[key] = value
+    sessionStorage.setItem(storageKey, JSON.stringify(map))
+    console.log('****setSessionMapValue***放置的本地值：' + JSON.stringify(map))
   }
+
 }

@@ -1,6 +1,8 @@
 /**
  * 图片压缩和上传
  */
+import consts from '../mock-data/consts'
+
 export default {
   uploadImg: function (file, maxSize, callback) {
     maxSize = maxSize * 1024 * 1024
@@ -8,24 +10,25 @@ export default {
     this.getFileReader(file, maxSize, callback)
   },
   getFileReader: function (file, maxSize, callback) {
+    let com = this
     let reader = new FileReader()
-    reader.onload=function () {
+    reader.onload = function () {
       let result = this.result
       let formData = new FormData()
-      this.getImgInfo(result, function (img, imgInfo) {
+      com.getImgInfo(result, function (img, imgInfo) {
         console.log('获取的文件信息：' + JSON.stringify(imgInfo))
         console.log('原图尺寸：' + result.length)
         if (result.length > maxSize) {
-          let newDataUrl = this.getCanvasDataUrl(img, this.getSuitableSize(imgInfo, Math.ceil(result.length / maxSize)))
-          let blob = this.base64ToBlob(newDataUrl, 'image/png')
+          let newDataUrl = com.getCanvasDataUrl(img, com.getSuitableSize(imgInfo, Math.ceil(result.length / maxSize)))
+          let blob = com.base64ToBlob(newDataUrl, 'image/jpeg')
           console.log('blob.type:' + blob.type)
           console.log('要传递的文件大小：' + blob.size)
           //					let newFile = new File([blob], Date.now() + '.png');
-          formData.append('image', blob, Date.now() + '.png')
+          formData.append('image', blob, Date.now() + '.jpg')
         } else {
           formData.append('image', file)
         }
-        this.postFile(formData, callback)
+        com.postFile(formData, callback)
       })
     }
 
@@ -72,7 +75,7 @@ export default {
   getImgInfo: function (result, callback) {
     let img = new Image()
     let imgInfo = {}
-    img.onload=function () {
+    img.onload = function () {
       console.log(img)
       imgInfo.width = img.naturalWidth
       imgInfo.height = img.naturalHeight

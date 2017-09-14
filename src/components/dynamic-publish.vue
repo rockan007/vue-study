@@ -2,15 +2,27 @@
 <template>
   <div>
     <div class="weui-cells">
+      <!--<div class="weui-cell weui-cell_select weui-cell_select-after ">-->
+        <!--<div class="weui-cell__hd">-->
+          <!--<label for class="weui-label">消息类型</label>-->
+        <!--</div>-->
+        <!--<div class="weui-cell__bd">-->
+          <!--<select class="weui-select" name="select" v-on:change="getType($event)">-->
+            <!--<option v-for="(msgStyle,index) in msgStyles" v-bind:selected="msgStyle.typeNo===msgType"-->
+                    <!--v-bind:value="msgStyle.typeNo">{{msgStyle.typeName}}-->
+            <!--</option>-->
+          <!--</select>-->
+        <!--</div>-->
+      <!--</div>-->
       <div class="weui-cell">
         <div class="weui-cell__bd">
           <input class="weui-input" v-model.trim="title" type="text" placeholder="在此输入通知标题"/>
         </div>
       </div>
-      <div v class="weui-cell">
+      <div class="weui-cell">
         <div class="weui-cell_bd">
           <textarea rows="10" v-model.trim="description" class="weui-textarea" placeholder="在此输入通知内容"></textarea>
-          <extra-file v-bind:msgType="msgType"></extra-file>
+          <extra-file v-on:uploadFile="getUploadFile"></extra-file>
         </div>
       </div>
       <div class="weui-cell weui-cell_access" v-on:click="routeToPersons">
@@ -31,12 +43,16 @@
       </div>
     </div>
     <a class="weui-btn weui-btn_primary" v-on:click="publishMethod">发布</a>
+    <toast v-bind:isShow="isShowToast" v-bind:toastContent="toastContent" v-on:toastClosed="isShowToast=false"></toast>
   </div>
 </template>
 <script>
   import extraFile from './extraFile.vue'
   import consts from '../mock-data/consts'
   import router from '../router/index'
+  import request from '../utils/request'
+  import toast from './toast.vue'
+  import jQuery from 'jquery'
 
   export default {
     name: 'dynamic-publish',
@@ -50,72 +66,95 @@
       content: ''
     },
     components: {
-      extraFile
+      extraFile, toast
     },
     data: function () {
       return {
         msgType: 1,
         msgStyles: consts.MSGSTYLES,
         title: '',
-        description: ''
+        description: '',
+        uploadFile: {},
+        isShowToast: false,
+        toastContent: ''
       }
     },
     created: function () {
       console.log('获取的类型数据：' + JSON.stringify(consts.MSGSTYLES))
     },
     methods: {
+      getUploadFile: function (fileInfo) {
+        this.uploadFile = fileInfo
+      },
       publishMethod: function () {
         console.log('&&&&&com-publish&&&&&发布按钮的点击事件')
         if (this.chosePersons.length === 0) {
-          console.log('请选择人员！')
+          this.toastContent = '请选择接收人'
+          this.isShowToast = true
           return
         }
-        this.judageIsLegal()
+        if (this.title.length > 0 || typeof(this.uploadFile.fileurl) !== 'undefined') {
+          this.getMsgType()
+        } else {
+          this.toastContent = '请填写标题或选择图片'
+          this.isShowToast = true
+        }
+
       },
-      judageIsLegal: function () {
+      getMsgType: function () {
+        if (this.title.length > 0 && typeof(this.uploadFile.fileurl) !== 'undefined') {//图文
+          this.msgType = 2
+        } else if (this.title.length > 0 && this.description.length > 0) {//文字卡片
+          this.msgType = 1
+        } else if (this.title.length > 0) {//文本消息
+          this.msgType = 0
+        } else if (typeof(this.uploadFile.fileurl) !== 'undefined') {//图片消息
+          this.msgType = 3
+        }
+        this.getPublishContent()
+      },
+      getPublishContent: function () {
+
+        let publishContent
         switch (this.msgType) {
           case 0:
-            if (this.content.length === 0) {
-              console.log('请填写内容！')
-              return
-            }
-            this.extraData = {
-              content: this.content
+            publishContent = {
+              content: this.title
             }
             break
           case 1:
-            if (typeof(this.extraData.textcard) === 'undefined') {
-              console.log('文字卡片未填写内容！！！')
-              return
+            publishContent = {
+              textcard: {
+                title: this.title,
+                description: this.description
+              }
             }
             break
-          case 2:
-          case 5:
-            if (typeof(this.extraData.news) === 'undefined') {
-              console.log('请填写内容和选择文件！！！')
-              return
+          case 2://圖文
+            let extraData = jQuery.extend({
+              title: this.title,
+              description: this.description,
+              picurl: this.uploadFile.fileurl
+            }, this.uploadFile)
+            publishContent = {
+              news: {
+                articles: [extraData]
+              }
             }
             break
           case 3:
-          case 4:
-          case 6:
-            if (typeof(this.fileInfo.fileurl) === 'undefined') {
-              console.log('请选择文件')
-              return
-            }
-            this.extraData = this.fileInfo
+            publishContent = this.uploadFile
             break
           default:
             break
         }
-        this.publish()
-      },
-      publish: function () { //发布
         let tStyle = this.getPubStyle()
-        this.extraData.msgtype = tStyle.msgtype
-        this.extraData.type = tStyle.type
-        console.log('&&&&&com-publish&&&&&发布事件！' + JSON.stringify(this.extraData))
-        request.postMessage(this.chosePersons, this.extraData, function (data) {
+        publishContent.type = tStyle.type
+        publishContent.msgtype = tStyle.msgtype
+        this.publish(publishContent)
+      },
+      publish: function (content) { //发布
+        request.postMessage(this.chosePersons, content, function (data) {
           console.log('发送消息，返回的值：' + JSON.stringify(data))
           console.log(data)
           if (data.RspCode === '0000') {
@@ -139,12 +178,7 @@
         router.push({
           name: 'choose-container',
         })
-      },
-      getType: function (event) {
-        console.log(event.target.value)
-        this.msgType = parseInt(event.target.value)
       }
-
     }
   }
 </script>

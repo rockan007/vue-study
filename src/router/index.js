@@ -16,7 +16,12 @@ export default new Router({
   routes: [
     {//默认导向首页
       path: '/',
-      redirect: '/msg-home'
+      redirect: '/dynamic-publish'
+    },
+    {//界面：新建通知
+      path: '/dynamic-publish',
+      name: 'dynamic-publish',
+      component: dynamicPublish
     },
     {//界面：首页
       path: '/msg-home',
@@ -24,7 +29,7 @@ export default new Router({
       component: msgHome,
       children: [
         {//界面：新建通知
-          path: 'dynamic-publish',
+          path: '/dynamic-publish',
           name: 'dynamic-publish',
           component: dynamicPublish
         }, {//界面：查看通知
@@ -51,7 +56,7 @@ export default new Router({
       component: chooseContainer,
       children: [
         {
-          path: 'choose-person/:id/:path',
+          path: 'choose-person/:id',
           name: 'choose-person',
           component: choosePerson
         },
