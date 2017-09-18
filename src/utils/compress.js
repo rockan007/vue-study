@@ -57,7 +57,7 @@ export default {
   },
   getCanvasDataUrl: function (img, suitableSize) {
     console.log('*****重绘图片的宽高******')
-    let imageType = 'image/png',
+    let imageType = 'image/jpeg',
       imageArgu = 0.7
     let canvas = document.createElement('canvas')
     canvas.width = suitableSize.width
@@ -87,7 +87,7 @@ export default {
   },
 
   base64ToBlob: function (base64Url, mime) {
-    let base64 = base64Url.replace(/^data:image\/(png|jpg);base64,/, '')
+    let base64 = base64Url.replace(/^data:image\/(png|jpeg|jpg);base64,/, '')
     //		console.log("处理后的database64:" + base64);
     let sliceSize = 1024
     let byteChars = window.atob(base64)

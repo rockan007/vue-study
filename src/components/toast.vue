@@ -17,7 +17,7 @@
       },
       toastDuration: {
         type: Number,
-        default:5
+        default:2
       },
       isShow: false
     },

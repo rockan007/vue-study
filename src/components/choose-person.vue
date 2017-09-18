@@ -54,9 +54,9 @@
       }
     },
     created: function () {
-      console.log('获取的的id' + this.$route.params.id)
+      console.log('获取的的id' + parseInt(this.$route.params.id))
       this.setPosition()
-      if (this.$route.params.id === -1) {
+      if (parseInt(this.$route.params.id) === -1) {
         this.getAllListData()
       } else {
         this.getCurDeparts()
@@ -64,9 +64,9 @@
     },
     watch: {
       $route (to, from) {
-        console.log('当前路由id:' + this.$route.params.id)
+        console.log('当前路由id:' + parseInt(this.$route.params.id))
         this.setPosition()
-        if (this.$route.params.id === -1) {
+        if (parseInt(this.$route.params.id) === -1) {
           this.getAllListData()
         } else {
           this.getCurDeparts()
@@ -103,10 +103,10 @@
       requestChildren: function () { //获取部门内部信息
         console.log('*********requestChildren获取本页列表数据******')
         let parentId = 0
-        if (this.$route.params.id === -1) {
+        if (parseInt(this.$route.params.id) === -1) {
           parentId = 1
         } else {
-          parentId = this.$route.params.id
+          parentId = parseInt(this.$route.params.id)
         }
         let list = JSON.parse(sessionStorage.getItem(consts.KEY_DEPARTS))
         console.log(list)
@@ -218,7 +218,7 @@
       setItemsStatus: function (items) {
         console.log('********setItemsStatus设置列表选择状态********')
         console.log('要改变的部门和人员数据:' + JSON.stringify(items))
-        let arr = events.isExistInSessionArray(consts.KEY_CHOOSE_DEPARTS, this.$route.params.id)
+        let arr = events.isExistInSessionArray(consts.KEY_CHOOSE_DEPARTS, parseInt(this.$route.params.id))
         console.log('此部门是否存在于已选部门列表中:' + JSON.stringify(arr))
         if (arr[1] >= 0) { //如果此部门为已选
           this.isAllChecked = true
@@ -246,7 +246,7 @@
         console.log('部门对应的人员的map值：' + JSON.stringify(events.getSessionMap(consts.KEY_CHOSE_MAP)))
         console.log('已选部门的值：' + JSON.stringify(events.getSessionArray(consts.KEY_CHOOSE_DEPARTS)))
         if (item.userid) { //如果是人员 测试
-          return events.isExistInArray(events.getSessionMapValue(consts.KEY_CHOSE_MAP, this.$route.params.id), item.userid)[1] >= 0
+          return events.isExistInArray(events.getSessionMapValue(consts.KEY_CHOSE_MAP, parseInt(this.$route.params.id)), item.userid)[1] >= 0
         } else { //如果是部门
           events.toggleValueInSessionArray(consts.KEY_CHOOSE_DEPARTS, item.value, this.isAllChildrenChose(item))
           if (events.isExistInSessionArray(consts.KEY_CHOOSE_DEPARTS, item.value)[1] >= 0) {
@@ -331,7 +331,7 @@
         })
 
         //设置页面状态
-        console.log("选择部门时的数据列表："+JSON.stringify(com.listData))
+        console.log('选择部门时的数据列表：' + JSON.stringify(com.listData))
         com.setItemsStatus(com.listData)
       },
       /**
@@ -340,6 +340,9 @@
        */
       getAllChildDeparts: function (departId) {
         console.log('********getAllChildDeparts 递归获取所有子部门********')
+        if (departId === -1) {
+          departId = 1
+        }
         let allDeparts = events.getSessionArray(consts.KEY_DEPARTS)
         let childDeparts = allDeparts.filter(function (depart) {
           return depart.parentvalue === departId
@@ -354,29 +357,29 @@
       },
       setAsChildren: function () { //将列表数据设置为副部门的children
         console.log('********setAsChildren将子部门数据保存至本地数组中********')
-        let parentId = this.$route.params.id
-        if (parentId === 1) {
-          parentId = -1
-        }
+        let parentId = parseInt(this.$route.params.id)
         let departList = events.getSessionArray(consts.KEY_DEPARTS)
         departList[this.getDepartIndex(parentId)].children = this.listData
         console.log('要保存至本地的列表数据：' + JSON.stringify(departList))
         //将修改后的数据保存到本地储存列表
         sessionStorage.setItem(consts.KEY_DEPARTS, JSON.stringify(departList))
       },
-      getDepartIndex: function () { //获取部门再部门列表中的序号
+      getDepartIndex: function (id) { //获取部门再部门列表中的序号
         console.log('********getDepartIndex获取部门在部门列表中的序号********')
-        let id = this.$route.params.id
         let departList = JSON.parse(sessionStorage.getItem(consts.KEY_DEPARTS))
+        console.log('获取的本地部门列表数据：' + JSON.stringify(departList))
         for (let i in departList) {
-          if (departList[i].value === id) {
+          console.log('遍历的部门：' + JSON.stringify(departList[i]) + ',部门id类型：' + typeof(departList[i].value))
+          console.log('id类型：' + typeof(id))
+          if (parseInt(departList[i].value) === id) {
+            console.log('获取的部门列表的位置：' + i)
             return i
           }
         }
       },
       getLocalChildren: function () { //获取本地的子项
         console.log('********getLocalChildren获取保存至本地的本部门子部门和人員********')
-        let id = this.$route.params.id
+        let id = parseInt(this.$route.params.id)
         let departList = events.getSessionArray(consts.KEY_DEPARTS)
 
         let departs = departList.filter(function (depart) {
@@ -391,14 +394,14 @@
       getDepartInfo: function () {
         let list = JSON.parse(sessionStorage.getItem(consts.KEY_DEPARTS))
         for (let i in list) {
-          if (this.$route.params.id === list[i].value) {
+          if (parseInt(this.$route.params.id) === list[i].value) {
             return list[i]
           }
         }
       },
       setPosition: function () {
         console.log('********setPosition********')
-        if (parseInt(this.$route.params.id) === -1) {
+        if (parseInt(parseInt(this.$route.params.id)) === -1) {
           events.setSessionMapValue(consts.KEY_DEPART_POSITION, 1, 1)
         } else {
           let departInfo = this.getDepartInfo()
@@ -436,11 +439,11 @@
     display: block;
   }
 
-  input[type=checkbox]:checked .weui-icon-checked:before {
+  input[type=checkbox]:checked + .weui-icon-checked:before {
+    display: inline-block;
     content: '\EA06';
     color: #09BB07;
     font-size: 23px;
-    display: block;
   }
 
   .weui-cells {

@@ -20,7 +20,6 @@
   import consts from '../mock-data/consts'
   import events from '../utils/events'
   import router from '../router/index'
-  import jQuery from 'jquery'
 
   export default {
     name: 'choose-container',
@@ -80,6 +79,8 @@
     bottom: 0;
     left: 0;
     right: 0;
+    background-color: white;
+    z-index: 99;
   }
   .margin-bottom50 {
     margin-bottom: 50px;

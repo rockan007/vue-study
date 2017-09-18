@@ -1,12 +1,9 @@
 <!--App首页-->
 <template>
   <div id="app">
-    <transition>
-      <keep-alive>
+      <keep-alive include="dynamic-publish">
         <router-view v-on:chosePersons="getChosePerson" v-bind:chosePersons="chosePersons"></router-view>
-
       </keep-alive>
-    </transition>
   </div>
 </template>
 
