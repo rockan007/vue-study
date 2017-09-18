@@ -163,6 +163,11 @@
       },
       publishMethod: function () {
         console.log('&&&&&com-publish&&&&&发布按钮的点击事件')
+        if (this.chosePersons.length === 0) {
+          this.toastContent = '请选择接收人'
+          this.isShowToast = true
+          return
+        }
         console.log('是否合法？？？？' + this.isLegal())
         if (!this.isLegal()) {
           this.isShowToast = true
@@ -296,18 +301,18 @@
 
       },
       resetData: function () {
-        this.msgType = 0
-        this.msgStyles = consts.MSGSTYLES
+//        this.msgType = 0
+//        this.msgStyles = consts.MSGSTYLES
         this.title = ''
         this.description = ''
         this.uploadFile = {}
         this.isShowToast = false
         this.toastContent = ''
-        this.isShow = {
-          title: true,
-          description: false,
-          extra: false
-        }
+//        this.isShow = {
+//          title: false,
+//          description: true,
+//          extra: false
+//        }
       },
       getPubStyle: function () { //發佈的類型
         for (let i in consts.MSGSTYLES) {
