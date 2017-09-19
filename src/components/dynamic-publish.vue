@@ -19,7 +19,7 @@
           通知人员选择
         </div>
         <div class="weui-cell__ft">
-          {{chosePersons.length > 99 ? "99" : chosePersons.length}}
+          {{chosePersons.length > 99 ? "99+" : chosePersons.length}}
         </div>
       </div>
       <div v-if="isShow.title" class="weui-cell">
@@ -33,7 +33,7 @@
                     class="weui-textarea"
                     placeholder="在此输入通知内容"></textarea>
           <extra-file v-if="isShow.extra" v-bind:msgType="msgType" v-on:showToast="showToast"
-                      v-on:uploadFile="getUploadFile"></extra-file>
+                      v-bind:uploadFiles="uploadFiles" v-on:uploadFile="getUploadFile"></extra-file>
         </div>
       </div>
 
@@ -56,6 +56,7 @@
   import router from '../router/index'
   import request from '../utils/request'
   import toast from './toast.vue'
+  import $ from 'jquery'
 
   export default {
     name: 'dynamic-publish',
@@ -66,7 +67,13 @@
           return []
         }
       },
-      content: ''
+      content: '',
+      uploadFiles:{
+        type:Array,
+        default:function () {
+          return []
+        }
+      }
     },
     components: {
       extraFile, toast
@@ -80,7 +87,7 @@
     },
     watch: {
       msgType: function (newVal) {
-        this.resetFiles()
+//        this.resetFiles()
         this.setElementShow(newVal)
       }
     },
@@ -101,9 +108,9 @@
           }
         }
       },
-      resetFiles: function () {
-        this.uploadFile = {}
-      },
+//      resetFiles: function () {
+////        this.uploadFile = {}
+//      },
       showToast: function (content) {
         this.toastContent = content
         this.isShowToast = true
@@ -160,6 +167,7 @@
       },
       getUploadFile: function (fileInfo) {
         this.uploadFile = fileInfo
+        this.$emit('uploadFile', [fileInfo])
       },
       publishMethod: function () {
         console.log('&&&&&com-publish&&&&&发布按钮的点击事件')

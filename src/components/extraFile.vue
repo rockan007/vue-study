@@ -4,7 +4,7 @@
     <div class='weui-uploader__bd'>
       <ul class='weui-uploader__files' id="uploaderFiles">
         <li v-for="file in uploadFiles" class='weui-uploader__file'
-            v-bind:style="{'background-image':'url('+file.fileurl+')'}"></li>
+            v-bind:style="{backgroundImage:'url('+file.fileurl+')'}" v-on:click="previewImage()"></li>
       </ul>
       <div class='weui-uploader__input-box'>
         <input id="uploaderInput" class='weui-uploader__input' type="file" v-bind:accept="getAcceptType()"
@@ -16,7 +16,6 @@
 <script>
   import router from '../router/index'
   import compress from '../utils/compress'
-  import jQuery from 'jquery'
 
   export default {
     name: 'extra-file',
@@ -24,14 +23,23 @@
       msgType: {
         type: Number,
         default: 1
+      },
+      uploadFiles:{
+        type:Array,
+        default:function () {
+          return []
+        }
       }
     },
     data () {
       return {
-        uploadFiles: [],
+        addedFiles:this.uploadFiles,
         uploadReal: false,
-        toastContent: ''
+        toastContent: '',
+        showGallery: false
       }
+    },
+    mounted: function () {
     },
     created: function () {
 
@@ -39,9 +47,22 @@
     watch: {
       msgType: function () {
         this.uploadFiles = []
+      },
+      uploadFiles:function (newVal,oldVal) {
+        this.addedFiles=newVal;
       }
     },
     methods: {
+      previewImage: function () {
+        console.log('选择后的文件点击事件')
+        if (this.msgType !== 2 && this.msgType !== 3) {
+          return
+        }
+//        this.showGallery=true;
+        router.push({
+          name: 'image-preview'
+        })
+      },
       getAcceptType: function () {
         let acceptType
         switch (this.msgType) {
@@ -85,16 +106,6 @@
             return
           }
           this.uploadFile(file)
-//          compress.uploadImg(file, 2, function (response) {
-//            console.log('已上傳的文件！' + JSON.stringify(response))
-//            if (response.RspCode === '0000') {
-//              console.log()
-//              com.uploadFiles = [response.RspData]
-//              com.$emit('uploadFile', response.RspData)
-//            } else {
-//              console.log('发生错误！' + JSON.stringify(response))
-//            }
-//          })
         }
       },
       uploadFile: function (file) {
@@ -173,3 +184,40 @@
     }
   }
 </script>
+<style scoped>
+  .display-none {
+    display: none;
+    opacity: 0;
+  }
+
+  .display-block {
+    display: block;
+    opacity: 1;
+  }
+
+  .swiper-container {
+    width: 100%;
+    height: 90%;
+    margin-bottom: 50px;
+  }
+
+  .swiper-slide {
+    text-align: center;
+    font-size: 18px;
+    background: #fff;
+
+    /* Center slide text vertically */
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    -webkit-justify-content: center;
+    justify-content: center;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    -webkit-align-items: center;
+    align-items: center;
+  }
+</style>

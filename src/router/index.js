@@ -7,6 +7,7 @@ import msgDetail from '../components/message-detail.vue'
 import choosePerson from '../components/choose-person.vue'
 import chooseContainer from '../components/choose-container.vue'
 import readContainer from '../components/read-container.vue'
+import imagePreview from '../components/image-preview.vue'
 
 Vue.use(Router)
 /**
@@ -76,6 +77,11 @@ export default new Router({
       path: 'read-container',
       name: 'read-container',
       component: readContainer
+    },
+    {//界面：图片预览
+      path: '/image-preview',
+      name: 'image-preview',
+      component: imagePreview
     }
   ]
 })
