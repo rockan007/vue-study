@@ -1,24 +1,38 @@
 <!--组件：图片预览-->
 <template>
-  <div class="weui-gallery display-block" id="gallery" v-on:click="showGallery=false">
-    <div class="swiper-container">
-      <!-- Additional required wrapper -->
-      <div class="swiper-wrapper">
-        <!-- Slides -->
-        <div v-for="(image,index) in dealtImages" class="swiper-slide" v-bind:style="{backgroundImage:'url('+image.fileurl+')',
+  <div>
+    <div class="weui-gallery display-block" id="gallery" v-on:click="showGallery=false">
+      <div class="swiper-container">
+        <!-- Additional required wrapper -->
+        <div class="swiper-wrapper">
+          <!-- Slides -->
+          <div v-for="(image,index) in dealtImages" class="swiper-slide" v-bind:style="{backgroundImage:'url('+image.fileurl+')',
           backgroundSize:'cover'}">
-          图片
+          </div>
+        </div>
+        <!-- If we need pagination -->
+        <div class="swiper-pagination"></div>
+      </div>
+      <div class="weui-gallery__opr" v-on:click="showDialog=true">
+        <a class="weui-gallery__del">
+          <i class="weui-icon-delete weui-icon_gallery-delete">
+
+          </i>
+        </a>
+      </div>
+    </div>
+    <div class="js_dialog" v-bind:class="[{displayNone:!showDialog},{displayBlock:showDialog}]">
+      <div class="weui-mask"></div>
+      <div class="weui-dialog">
+        <div class="weui-dialog__hd">
+          <strong class="weui-dialog__title">删除图片</strong>
+        </div>
+        <div class="weui-dialog__bd">确定要删除此张图片？</div>
+        <div class="weui-dialog__ft">
+          <a class="weui-dialog__btn weui-dialog__btn-default" v-on:click="delImage()">确定</a>
+          <a class="weui-dialog__btn weui-dialog__btn_primary" v-on:click="showDialog=false">取消</a>
         </div>
       </div>
-      <!-- If we need pagination -->
-      <div class="swiper-pagination"></div>
-    </div>
-    <div class="weui-gallery__opr" v-on:click="delImage()">
-      <a class="weui-gallery__del">
-        <i class="weui-icon-delete weui-icon_gallery-delete">
-
-        </i>
-      </a>
     </div>
   </div>
 
@@ -42,7 +56,8 @@
       return {
         showGallery: false,
         mSwiper: {},
-        dealtImages: this.uploadFiles
+        dealtImages: this.uploadFiles,
+        showDialog: false
       }
 
     },
@@ -63,6 +78,7 @@
         this.dealtImages.splice(this.mSwiper.activeIndex, 1)
         console.log('删除文件后的值：' + JSON.stringify(this.dealtImages))
         this.$emit('dealtImages', this.dealtImages)
+        this.showDialog = false
         if (this.dealtImages.length === 0) {
           router.go(-1)
         }
