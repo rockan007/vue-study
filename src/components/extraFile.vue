@@ -3,8 +3,13 @@
   <div class='weui-uploader'>
     <div class='weui-uploader__bd'>
       <ul class='weui-uploader__files' id="uploaderFiles">
-        <li v-for="file in uploadFiles" class='weui-uploader__file'
-            v-bind:style="{backgroundImage:'url('+file.fileurl+')'}" v-on:click="previewImage()"></li>
+        <li v-for="(image,index) in showImages" class='weui-uploader__file'
+            v-bind:style="{backgroundImage:'url('+image+')'}" v-on:click="previewImage()">
+          <div class="weui-uploader__file-content"
+               v-bind:class="[{displayNone:msgType!==5},{displayBlock:msgType===5}]">
+            video
+          </div>
+        </li>
       </ul>
       <div class='weui-uploader__input-box'>
         <input id="uploaderInput" class='weui-uploader__input' type="file" v-bind:accept="getAcceptType()"
@@ -22,43 +27,65 @@
     props: {
       msgType: {
         type: Number,
-        default: 1
+        default: 0
       },
-      uploadFiles:{
-        type:Array,
-        default:function () {
+      uploadFiles: {
+        type: Array,
+        default: function () {
           return []
         }
       }
     },
+    beforeRouteLeave (to, from, next) {
+      //在路由离开前，清空value值
+      $('#uploaderInput').value = 'undefined'
+    },
     data () {
       return {
-        addedFiles:this.uploadFiles,
-        uploadReal: false,
         toastContent: '',
-        showGallery: false
+        showGallery: false,
+        showImages: []
       }
     },
     mounted: function () {
     },
     created: function () {
-
     },
     watch: {
-      msgType: function () {
-        this.uploadFiles = []
+      msgType: function (newVal) {
+        console.log('extraFile.vue获取的nmsgType newVal:' + newVal)
       },
-      uploadFiles:function (newVal,oldVal) {
-        this.addedFiles=newVal;
+      uploadFiles: function (newVal, oldVal) {
+        console.log('文件数组已改变：' + JSON.stringify(newVal))
+        this.showImages = []
+        for (let i in newVal) {
+          this.getBackImg(newVal[i])
+        }
       }
     },
     methods: {
+      getBackImg: function (fileInfo) {
+        let com = this
+        switch (this.msgType) {
+          case 2:
+          case 3:
+            this.showImages.push(fileInfo.fileurl)
+            break
+          case 5:
+            console.log('extraFile为视频')
+            compress.getVideoCover(fileInfo.fileurl, function (base64url) {
+              com.showImages.push(base64url)
+            })
+            break
+          default:
+            break
+        }
+      },
       previewImage: function () {
         console.log('选择后的文件点击事件')
         if (this.msgType !== 2 && this.msgType !== 3) {
           return
         }
-//        this.showGallery=true;
         router.push({
           name: 'image-preview'
         })
@@ -116,8 +143,6 @@
             compress.uploadImg(file, 2, function (response) {
               console.log('已上傳的文件！' + JSON.stringify(response))
               if (response.RspCode === '0000') {
-                console.log()
-                com.uploadFiles = [response.RspData]
                 com.$emit('uploadFile', response.RspData)
               } else {
                 console.log('发生错误！' + JSON.stringify(response))
@@ -132,7 +157,7 @@
             compress.postFile(formData, function (response) {
               console.log('已上傳的文件！' + JSON.stringify(response))
               if (response.RspCode === '0000') {
-                com.uploadFiles = [response.RspData]
+//                com.addedFiles = [response.RspData]
                 com.$emit('uploadFile', response.RspData)
               } else {
                 console.log('发生错误！' + JSON.stringify(response))

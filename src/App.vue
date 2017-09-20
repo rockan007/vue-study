@@ -1,7 +1,7 @@
 <!--App首页-->
 <template>
   <div id="app">
-    <keep-alive include="dynamic-publish">
+    <keep-alive include="dynamic-publish" >
       <router-view v-bind:uploadFiles="uploadFiles"
                    v-on:uploadFiles="getUploadFiles"
                    v-on:chosePersons="getChosePerson"
@@ -20,14 +20,24 @@
         uploadFiles: []
       }
     },
+    watch: {
+      uploadFiles: function (newVal) {
+        console.log('app.vue获取的选择的文件列表的当前值：' + JSON.stringify(newVal))
+      }
+    },
     methods: {
+      //获取选择的人
       getChosePerson: function (persons) {
         this.chosePersons = persons
       },
+      //获取伤处文件列表
       getUploadFiles: function (files) {
+        console.log('app.vue获取的上传后的文件列表的当前值：' + JSON.stringify(files))
         this.uploadFiles = files
       },
+      //获取删除的文件列表
       getDealtImages: function (files) {
+        console.log('app.vue获取的删除后的文件列表的当前值：' + JSON.stringify(files))
         this.uploadFiles = files
       }
     }

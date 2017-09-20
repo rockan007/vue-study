@@ -2,6 +2,7 @@
  * 图片压缩和上传
  */
 import consts from '../mock-data/consts'
+import $ from 'jquery'
 
 export default {
   uploadImg: function (file, maxSize, callback) {
@@ -23,7 +24,6 @@ export default {
           let blob = com.base64ToBlob(newDataUrl, 'image/jpeg')
           console.log('blob.type:' + blob.type)
           console.log('要传递的文件大小：' + blob.size)
-          //					let newFile = new File([blob], Date.now() + '.png');
           formData.append('image', blob, Date.now() + '.jpg')
         } else {
           formData.append('image', file)
@@ -88,7 +88,6 @@ export default {
 
   base64ToBlob: function (base64Url, mime) {
     let base64 = base64Url.replace(/^data:image\/(png|jpeg|jpg);base64,/, '')
-    //		console.log("处理后的database64:" + base64);
     let sliceSize = 1024
     let byteChars = window.atob(base64)
     let byteArrays = []
@@ -107,5 +106,22 @@ export default {
     return new Blob(byteArrays, {
       type: mime
     })
+  },
+  getVideoCover: function (videoUrl, callback) {
+    let com = this
+    let video = document.createElement('video')
+    video.addEventListener('loadeddata', function () {
+      callback(com.captureImage(video))
+    })
+    video.src = videoUrl
+  },
+  captureImage: function (video) {
+    let suitableSize = {
+      width: video.videoWidth,
+      height: video.videoHeight
+    }
+    console.log('compress获取的视频宽高：' + JSON.stringify(suitableSize))
+    return this.getCanvasDataUrl(video, suitableSize)
   }
+
 }

@@ -24,8 +24,8 @@
 
 </template>
 <script>
-  import Swiper from 'swiper'
   import 'swiper/dist/css/swiper.min.css'
+  import Swiper from 'swiper/dist/js/swiper.min'
   import router from '../router/index'
 
   export default {
@@ -42,9 +42,14 @@
       return {
         showGallery: false,
         mSwiper: {},
-        dealtImages: this.images
+        dealtImages: this.uploadFiles
       }
 
+    },
+    watch: {
+      uploadFiles: function (newVal) {
+        console.log('preview界面获取的uploadFiles：' + JSON.stringify(newVal))
+      }
     },
     mounted: function () {
       this.mSwiper = new Swiper('.swiper-container', {
@@ -54,7 +59,9 @@
     },
     methods: {
       delImage: function () {
+        console.log('删除文件')
         this.dealtImages.splice(this.mSwiper.activeIndex, 1)
+        console.log('删除文件后的值：' + JSON.stringify(this.dealtImages))
         this.$emit('dealtImages', this.dealtImages)
         if (this.dealtImages.length === 0) {
           router.go(-1)

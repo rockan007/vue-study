@@ -6,6 +6,7 @@ export default {
   postData: function (url, data, callback) {
     $.post(url, data, callback)
   },
+  //获取部门列表
   getDepartList: function (callback) {
     this.postData(consts.MAINURL, JSON.stringify({
       cmd: 'persondeparts',
@@ -17,6 +18,7 @@ export default {
       }
     })
   },
+  //获取部门人员
   getDepartPersons: function (id, colv, callcol, callback) {
     if (callcol) {
       callcol = 'info'

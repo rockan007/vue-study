@@ -3,7 +3,7 @@
 import Vue from 'vue'
 import App from './App'
 import router from './router'
-import './assets/css/weui.min.css'
+import 'weui/dist/style/weui.min.css'
 import './assets/css/weui-extra.min.css'
 import './assets/js/vconsole.min'
 

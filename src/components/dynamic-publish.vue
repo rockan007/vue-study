@@ -68,9 +68,9 @@
         }
       },
       content: '',
-      uploadFiles:{
-        type:Array,
-        default:function () {
+      uploadFiles: {
+        type: Array,
+        default: function () {
           return []
         }
       }
@@ -87,8 +87,10 @@
     },
     watch: {
       msgType: function (newVal) {
-//        this.resetFiles()
         this.setElementShow(newVal)
+      },
+      uploadFiles: function (newVal) {
+        console.log('dynamic-publish获取的文件列表：' + JSON.stringify(newVal))
       }
     },
     methods: {
@@ -105,12 +107,10 @@
             title: false,
             description: true,
             extra: false
-          }
+          },
+          publishing: false
         }
       },
-//      resetFiles: function () {
-////        this.uploadFile = {}
-//      },
       showToast: function (content) {
         this.toastContent = content
         this.isShowToast = true
@@ -166,19 +166,26 @@
         }
       },
       getUploadFile: function (fileInfo) {
+        console.log('dynamic-publish.vue获取的文件信息:' + JSON.stringify(fileInfo))
         this.uploadFile = fileInfo
-        this.$emit('uploadFile', [fileInfo])
+        this.$emit('uploadFiles', [fileInfo])
       },
       publishMethod: function () {
+        if (this.publishing) {
+          return
+        }
+        this.publishing = true
         console.log('&&&&&com-publish&&&&&发布按钮的点击事件')
         if (this.chosePersons.length === 0) {
           this.toastContent = '请选择接收人'
           this.isShowToast = true
+          this.publishing = false
           return
         }
         console.log('是否合法？？？？' + this.isLegal())
         if (!this.isLegal()) {
           this.isShowToast = true
+          this.publishing = false
           return
         }
         this.getPublishContent()
@@ -191,34 +198,60 @@
               this.toastContent = '请输入文字'
               return false
             }
+            if (this.description.length > 1000) {
+              this.toastContent = '内容不得超过1000字'
+              return false
+            }
             return true
           case 1:
-            if (this.title.length > 0 && this.description.length > 0) {
-              return true
-            }
             if (this.title.length === 0) {
               this.toastContent = '请输入标题'
-            } else {
+              return false
+            }
+            if (this.description.length === 0) {
               this.toastContent = '请输入文本内容'
+              return false
             }
-            return false
-          case 2://
-          case 5:
-            if (this.title.length > 0 && this.description.length > 0 && typeof(this.uploadFile.fileurl) !== 'undefined') {
-              return true
+            if (this.title.length > 60) {
+              this.toastContent = '标题不得大于60字'
+              return false
             }
+            if (this.description.length > 250) {
+              this.toastContent = '文本内容不得超过250字'
+              return false
+            }
+            return true
+          case 2://图文
+          case 5://视频
             if (this.title.length === 0) {
               this.toastContent = '请输入标题'
-            } else if (this.description.length === 0) {
-              this.toastContent = '请输入文本内容'
-            } else {
+              return false
+            }
+            if (this.description.length === 0) {
+              this.toastContent = '请输入内容'
+              return false
+            }
+            if (this.title.length > 60) {
+              this.toastContent = '标题不得大于60字'
+              return false
+            }
+            if (this.description.length > 250) {
+              this.toastContent = '内容不得超过250字'
+              return false
+            }
+            if (typeof (this.uploadFile.fileurl) === 'undefined') {
               this.toastContent = '请选择附件'
+              return false
             }
-            return false
+            return true
           case 3:
           case 4:
           case 6:
-            return typeof(this.uploadFile.fileurl) !== 'undefined'
+            if (typeof(this.uploadFile.fileurl) === 'undefined') {
+              this.toastContent = '请选择附件'
+              return false
+            }
+            return true
           default:
             return false
         }
@@ -295,6 +328,7 @@
         request.postMessage(this.chosePersons, content, function (data) {
           console.log('发送消息，返回的值：' + JSON.stringify(data))
           console.log(data)
+          com.publishing = false
           if (data.RspCode === '0000') {
             com.toastContent = '发布成功'
             com.isShowToast = true
@@ -309,18 +343,13 @@
 
       },
       resetData: function () {
-//        this.msgType = 0
-//        this.msgStyles = consts.MSGSTYLES
+
         this.title = ''
         this.description = ''
         this.uploadFile = {}
         this.isShowToast = false
         this.toastContent = ''
-//        this.isShow = {
-//          title: false,
-//          description: true,
-//          extra: false
-//        }
+        this.$emit('uploadFiles', [])
       },
       getPubStyle: function () { //發佈的類型
         for (let i in consts.MSGSTYLES) {
