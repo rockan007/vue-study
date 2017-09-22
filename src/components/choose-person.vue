@@ -31,8 +31,6 @@
       </a>
     </template>
   </div>
-
-
 </template>
 <script>
   import consts from '../mock-data/consts'
