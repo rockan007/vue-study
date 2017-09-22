@@ -13,7 +13,7 @@
       </ul>
       <div class='weui-uploader__input-box'>
         <input id="uploaderInput" class='weui-uploader__input' type="file" v-bind:accept="getAcceptType()"
-               v-on:change="selectFile($event)">
+               v-on:change="selectFile($event)" v-bind:disabled="uploadFiles.length>=9">
       </div>
     </div>
   </div>
@@ -27,7 +27,7 @@
     props: {
       msgType: {
         type: Number,
-        default: 0
+        default: 2
       },
       uploadFiles: {
         type: Array,
@@ -67,6 +67,7 @@
       getBackImg: function (fileInfo) {
         let com = this
         switch (this.msgType) {
+          case 1:
           case 2:
           case 3:
             this.showImages.push(fileInfo.fileurl)
@@ -83,7 +84,7 @@
       },
       previewImage: function () {
         console.log('选择后的文件点击事件')
-        if (this.msgType !== 2 && this.msgType !== 3) {
+        if (this.msgType !== 1&&this.msgType !== 2 && this.msgType !== 3) {
           return
         }
         router.push({
@@ -97,7 +98,7 @@
             acceptType = '添加文字'
             break
           case 1:
-            acceptType = '添加文本'
+            acceptType = 'image/jpeg,image/png'
             break
           case 2:
             acceptType = 'image/jpeg,image/png'
@@ -157,7 +158,6 @@
             compress.postFile(formData, function (response) {
               console.log('已上傳的文件！' + JSON.stringify(response))
               if (response.RspCode === '0000') {
-//                com.addedFiles = [response.RspData]
                 com.$emit('uploadFile', response.RspData)
               } else {
                 console.log('发生错误！' + JSON.stringify(response))
@@ -172,6 +172,7 @@
       isCurType: function (file) {
         console.log('****extraFile****选中文件的类型:' + file.type)
         switch (this.msgType) {
+          case 1:
           case 2://图文
           case 3:
             return file.type === 'image/jpeg' || file.type === 'image/png'

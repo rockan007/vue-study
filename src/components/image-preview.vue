@@ -21,7 +21,7 @@
         </a>
       </div>
     </div>
-    <div class="js_dialog" v-bind:class="[{displayNone:!showDialog},{displayBlock:showDialog}]">
+    <div class="js_dialog" v-bind:class="[{'display-none':!showDialog},{'display-block':showDialog}]">
       <div class="weui-mask"></div>
       <div class="weui-dialog">
         <div class="weui-dialog__hd">
@@ -71,6 +71,53 @@
         pagination: '.swiper-pagination',
         paginationClickable: true
       })
+    },
+    filters: {
+      showTitle: function (value) {
+        switch (value) {
+          case 1:
+          case 2:
+          case 5:
+            return true
+          case 0:
+          case 3:
+          case 4:
+          case 6:
+            return false
+          default:
+            return false
+        }
+      },
+      showDescription: function (value) {
+        switch (value) {
+          case 0:
+          case 1:
+          case 2:
+            return true
+          case 3:
+          case 4:
+          case 6:
+            return false
+          default:
+            return false
+        }
+      },
+      showExtra: function (value) {
+        switch (value) {
+          case 0:
+          case 1:
+            return false
+          case 2:
+          case 3:
+          case 4:
+          case 5:
+          case 6:
+            return true
+          default:
+            return false
+        }
+      }
+
     },
     methods: {
       delImage: function () {

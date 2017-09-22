@@ -2,16 +2,30 @@
 <template>
   <div>
     <div class="weui-cells">
-      <div class="weui-cell weui-cell_select weui-cell_select-after ">
-        <div class="weui-cell__hd">
-          <label for class="weui-label">消息类型</label>
-        </div>
+      <!--<div class="weui-cell weui-cell_select weui-cell_select-after ">-->
+        <!--<div class="weui-cell__hd">-->
+          <!--<label for class="weui-label">消息类型</label>-->
+        <!--</div>-->
+        <!--<div class="weui-cell__bd">-->
+          <!--<select class="weui-select" name="select" v-on:change="getMsgType($event)">-->
+            <!--<option v-for="(msgStyle,index) in msgStyles" v-bind:selected="msgStyle.typeNo===msgType"-->
+                    <!--v-bind:value="msgStyle.typeNo">{{msgStyle.typeName}}-->
+            <!--</option>-->
+          <!--</select>-->
+        <!--</div>-->
+      <!--</div>-->
+      <div  class="weui-cell">
         <div class="weui-cell__bd">
-          <select class="weui-select" name="select" v-on:change="getMsgType($event)">
-            <option v-for="(msgStyle,index) in msgStyles" v-bind:selected="msgStyle.typeNo===msgType"
-                    v-bind:value="msgStyle.typeNo">{{msgStyle.typeName}}
-            </option>
-          </select>
+          <input class="weui-input" v-model.trim="title" type="text" placeholder="在此输入通知标题"/>
+        </div>
+      </div>
+      <div  class="weui-cell">
+        <div class="weui-cell__bd">
+          <textarea  style="width: 100%" rows="8" v-model.trim="description"
+                    class="weui-textarea"
+                    placeholder="在此输入通知内容"></textarea>
+          <extra-file  v-bind:msgType="msgType" v-on:showToast="showToast"
+                      v-bind:uploadFiles="uploadFiles" v-on:uploadFile="getUploadFile"></extra-file>
         </div>
       </div>
       <div class="weui-cell weui-cell_access" v-on:click="routeToPersons">
@@ -22,21 +36,6 @@
           {{chosePersons.length > 99 ? "99+" : chosePersons.length}}
         </div>
       </div>
-      <div v-if="isShow.title" class="weui-cell">
-        <div class="weui-cell__bd">
-          <input class="weui-input" v-model.trim="title" type="text" placeholder="在此输入通知标题"/>
-        </div>
-      </div>
-      <div v-if="isShow.description||isShow.extra" class="weui-cell">
-        <div class="weui-cell__bd">
-          <textarea v-if="isShow.description" style="width: 100%" rows="8" v-model.trim="description"
-                    class="weui-textarea"
-                    placeholder="在此输入通知内容"></textarea>
-          <extra-file v-if="isShow.extra" v-bind:msgType="msgType" v-on:showToast="showToast"
-                      v-bind:uploadFiles="uploadFiles" v-on:uploadFile="getUploadFile"></extra-file>
-        </div>
-      </div>
-
       <div class="weui-cell weui-cell_switch">
         <div class="weui-cell__bd">
           是否短信同步
@@ -87,7 +86,7 @@
     },
     watch: {
       msgType: function (newVal) {
-        this.setElementShow(newVal)
+//        this.setElementShow(newVal)
       },
       uploadFiles: function (newVal) {
         console.log('dynamic-publish获取的文件列表：' + JSON.stringify(newVal))
@@ -96,7 +95,7 @@
     methods: {
       getDefaultData: function () {
         return {
-          msgType: 0,
+          msgType: 2,
           msgStyles: consts.MSGSTYLES,
           title: '',
           description: '',
@@ -129,7 +128,7 @@
             this.isShow = {
               title: true,
               description: true,
-              extra: false
+              extra: true
             }
             break
           case 2://图文
@@ -168,7 +167,16 @@
       getUploadFile: function (fileInfo) {
         console.log('dynamic-publish.vue获取的文件信息:' + JSON.stringify(fileInfo))
         this.uploadFile = fileInfo
-        this.$emit('uploadFiles', [fileInfo])
+        switch (this.msgType) {
+          case 2:
+          case 3:
+            this.$emit('uploadFiles', this.uploadFiles.concat(fileInfo))
+            break
+          default:
+            this.$emit('uploadFiles', [fileInfo])
+            break
+        }
+
       },
       publishMethod: function () {
         if (this.publishing) {
@@ -192,69 +200,28 @@
       },
       isLegal: function () {
         console.log('当前消息类型：' + this.msgType)
-        switch (this.msgType) {
-          case 0:
-            if (this.description.length === 0) {
-              this.toastContent = '请输入文字'
-              return false
-            }
-            if (this.description.length > 1000) {
-              this.toastContent = '内容不得超过1000字'
-              return false
-            }
-            return true
-          case 1:
-            if (this.title.length === 0) {
-              this.toastContent = '请输入标题'
-              return false
-            }
-            if (this.description.length === 0) {
-              this.toastContent = '请输入文本内容'
-              return false
-            }
-            if (this.title.length > 60) {
-              this.toastContent = '标题不得大于60字'
-              return false
-            }
-            if (this.description.length > 250) {
-              this.toastContent = '文本内容不得超过250字'
-              return false
-            }
-            return true
-          case 2://图文
-          case 5://视频
-            if (this.title.length === 0) {
-              this.toastContent = '请输入标题'
-              return false
-            }
-            if (this.description.length === 0) {
-              this.toastContent = '请输入内容'
-              return false
-            }
-            if (this.title.length > 60) {
-              this.toastContent = '标题不得大于60字'
-              return false
-            }
-            if (this.description.length > 250) {
-              this.toastContent = '内容不得超过250字'
-              return false
-            }
-            if (typeof (this.uploadFile.fileurl) === 'undefined') {
-              this.toastContent = '请选择附件'
-              return false
-            }
-            return true
-          case 3:
-          case 4:
-          case 6:
-            if (typeof(this.uploadFile.fileurl) === 'undefined') {
-              this.toastContent = '请选择附件'
-              return false
-            }
-            return true
-          default:
-            return false
+        if (this.title.length === 0) {
+          this.toastContent = '请输入标题'
+          return false
         }
+        if (this.description.length === 0) {
+          this.toastContent = '请输入文本内容'
+          return false
+        }
+        if (this.title.length > 60) {
+          this.toastContent = '标题不得大于60字'
+          return false
+        }
+        if (this.description.length > 250) {
+          this.toastContent = '文本内容不得超过250字'
+          return false
+        }
+        if (this.uploadFiles.length === 0) {
+          this.msgType = 1
+        } else {
+          this.msgType = 2
+        }
+        return true
       },
 
       getMsgType: function (event) {
@@ -277,16 +244,17 @@
             }
             break
           case 2://圖文
-            let extraData = $.extend({
-              title: this.title,
-              description: this.description,
-              picurl: this.uploadFile.fileurl
-            }, this.uploadFile)
-            publishContent = {
+            publishContent = $.extend({
               news: {
-                articles: [extraData]
+                articles: [
+                  {
+                    title: this.title,
+                    description: this.description,
+                    picurl: this.uploadFiles[0].fileurl
+                  }
+                ]
               }
-            }
+            }, this.getPostFileInfo())
             break
           case 3://
             publishContent = this.uploadFile
@@ -343,12 +311,9 @@
 
       },
       resetData: function () {
-
         this.title = ''
         this.description = ''
         this.uploadFile = {}
-        this.isShowToast = false
-        this.toastContent = ''
         this.$emit('uploadFiles', [])
       },
       getPubStyle: function () { //發佈的類型
@@ -363,6 +328,19 @@
         router.push({
           name: 'choose-container',
         })
+      },
+      //获取文档信息
+      getPostFileInfo: function () {
+        let filephypaths = []
+        let fileurls = []
+        for (let fileInfo of this.uploadFiles) {
+          filephypaths.push(fileInfo.filephypath)
+          fileurls.push(fileInfo.fileurl)
+        }
+        return {
+          filephypath: filephypaths.join('|='),
+          fileurl: fileurls.join('|=')
+        }
       }
     }
   }
