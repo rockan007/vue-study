@@ -18,7 +18,13 @@ export default {
       }
     })
   },
-  //获取部门人员
+  /**
+   *
+   * @param id
+   * @param colv
+   * @param callcol
+   * @param callback
+   */
   getDepartPersons: function (id, colv, callcol, callback) {
     if (callcol) {
       callcol = 'info'

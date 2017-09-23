@@ -75,8 +75,12 @@
         storage.toggleVlaueInSessionMap(consts.KEY_CHOOSE_PERSONS, person.id, person.name, isAdd)
         if (!isAdd) {//删除人员
           for (let departId of person.departList) {
-            this.delChoseDepart(departId)
+            if (storage.getSessionSet(consts.KEY_ALL_CHOOSE_DEPARTS).has(departId))
+              this.delChoseDepart(departId)
           }
+        } else {//添加人员
+          //怎样确定此部门已全选？返回上级部门的时候 此部门的已选状态为已选？
+
         }
       },
       /**
@@ -89,8 +93,10 @@
           return depart.value === value
         })[0]
         let parentIds = []
-        this.getAllParentIds(choseDepart,parentIds)
-        console.log("获取的所有父部门的id"+parentIds)
+        this.getAllParentIds(choseDepart, parentIds)
+        console.log('获取的所有父部门的id' + parentIds)
+        this.toggleDepartsInStorage(parentIds, false)
+        this.getDepartAllPerson(value, false)
       },
       //添加选中部门，并添加选中部门的子部门
       addChoseDepart: function (value, index) {
@@ -98,12 +104,46 @@
         let childIds = []
         this.getAllChildIds(choseDepart, childIds)
         console.log('获取的部门的全部子部门的id' + childIds.toString())
+        this.toggleDepartsInStorage(childIds, true)
+        this.getDepartAllPerson(value, true)
+      },
+      /**
+       * 获取部门人员
+       * @param {Number} value
+       * @param {Boolean} isAdd
+       */
+      getDepartAllPerson: function (value, isAdd) {
+        let com = this
+        request.getDepartPersons(value, 1, 0, function (response) {
+          console.log('获取的人员信息：' + JSON.stringify(response))
+          for (let person of response) {
+            storage.toggleValueInSessionSet(consts.KEY_ALL_CHOOSE_PERSON, person.id, isAdd)
+            storage.toggleVlaueInSessionMap(consts.KEY_CHOOSE_PERSONS, person.id, person.name, isAdd)
+          }
+          com.setPersonListStatus()
+        })
+      },
+      setPersonListStatus: function () {
+        let allPersonSet = storage.getSessionSet(consts.KEY_ALL_CHOOSE_PERSON)
+        for (let person of this.curDepartInfo.personList) {
+          person.isChecked = allPersonSet.has(person.id)
+        }
+      },
+      toggleDepartsInStorage: function (ids, isAdd) {
+        for (let id of ids) {
+          storage.toggleValueInSessionSet(consts.KEY_ALL_CHOOSE_DEPARTS, id, isAdd)
+        }
       },
       /**
        * 递归获取部门的父部门
        */
-      getAllParentIds: function (depart,ids) {
-
+      getAllParentIds: function (depart, ids) {
+        if (typeof (depart.parentDepart.value) === 'number') {
+          ids.push(depart.parentDepart.value)
+          this.getAllParentIds(depart.parentDepart, ids)
+        } else {
+          return ids
+        }
       },
       /**
        * 递归获取depart的子部门

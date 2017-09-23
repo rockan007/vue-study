@@ -13,7 +13,7 @@
       </ul>
       <div class='weui-uploader__input-box'>
         <input id="uploaderInput" class='weui-uploader__input' type="file" v-bind:accept="getAcceptType()"
-               v-on:change="selectFile($event)" v-bind:disabled="uploadFiles.length>=9">
+               v-on:change="selectFile($event)" v-bind:disabled="uploadFiles.length>=9" multiple>
       </div>
     </div>
   </div>
@@ -84,7 +84,7 @@
       },
       previewImage: function () {
         console.log('选择后的文件点击事件')
-        if (this.msgType !== 1&&this.msgType !== 2 && this.msgType !== 3) {
+        if (this.msgType !== 1 && this.msgType !== 2 && this.msgType !== 3) {
           return
         }
         router.push({
@@ -124,6 +124,11 @@
         if (event.target.value) {
           console.log('选中的文件路径：' + event.target.value)
           console.log(event.target.files)
+          let files = event.target.files
+          if (files.length > 9 - this.uploadFiles.length) {
+            this.$emit('showToast', '请确保附件总数不多于9张')
+            return
+          }
           let file = event.target.files[0]
           if (!this.isCurType(file)) {
             this.$emit('showToast', '所选文件类型错误')
@@ -133,21 +138,25 @@
             this.$emit('showToast', this.toastContent)
             return
           }
-          this.uploadFile(file)
+          this.uploadFile(files)
         }
       },
-      uploadFile: function (file) {
+      uploadFile: function (files) {
         let com = this
         switch (this.msgType) {
+          case 1:
           case 2:
           case 3:
-            compress.uploadImg(file, 2, function (response) {
-              console.log('已上傳的文件！' + JSON.stringify(response))
-              if (response.RspCode === '0000') {
-                com.$emit('uploadFile', response.RspData)
-              } else {
-                console.log('发生错误！' + JSON.stringify(response))
-              }
+            let count = 0
+            let upLoaded = []
+            files.forEach(function (file, index) {
+              com.uploadImg(file, index, function (i, data) {
+                count++
+                upLoaded[i] = data
+                if (count === files.length) {
+                  com.$emit('uploadFiles', upLoaded)
+                }
+              })
             })
             break
           case 4:
@@ -168,7 +177,17 @@
             break
         }
       },
-
+      uploadImage: function (img, index, callback) {
+        compress.uploadImg(img, 2, function (response) {
+          console.log('已上傳的文件！' + JSON.stringify(response))
+          if (response.RspCode === '0000') {
+            callback(index, response.RspData)
+//            com.$emit('uploadFile', response.RspData)
+          } else {
+            console.log('发生错误！' + JSON.stringify(response))
+          }
+        })
+      },
       isCurType: function (file) {
         console.log('****extraFile****选中文件的类型:' + file.type)
         switch (this.msgType) {

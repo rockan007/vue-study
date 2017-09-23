@@ -3,29 +3,29 @@
   <div>
     <div class="weui-cells">
       <!--<div class="weui-cell weui-cell_select weui-cell_select-after ">-->
-        <!--<div class="weui-cell__hd">-->
-          <!--<label for class="weui-label">消息类型</label>-->
-        <!--</div>-->
-        <!--<div class="weui-cell__bd">-->
-          <!--<select class="weui-select" name="select" v-on:change="getMsgType($event)">-->
-            <!--<option v-for="(msgStyle,index) in msgStyles" v-bind:selected="msgStyle.typeNo===msgType"-->
-                    <!--v-bind:value="msgStyle.typeNo">{{msgStyle.typeName}}-->
-            <!--</option>-->
-          <!--</select>-->
-        <!--</div>-->
+      <!--<div class="weui-cell__hd">-->
+      <!--<label for class="weui-label">消息类型</label>-->
       <!--</div>-->
-      <div  class="weui-cell">
+      <!--<div class="weui-cell__bd">-->
+      <!--<select class="weui-select" name="select" v-on:change="getMsgType($event)">-->
+      <!--<option v-for="(msgStyle,index) in msgStyles" v-bind:selected="msgStyle.typeNo===msgType"-->
+      <!--v-bind:value="msgStyle.typeNo">{{msgStyle.typeName}}-->
+      <!--</option>-->
+      <!--</select>-->
+      <!--</div>-->
+      <!--</div>-->
+      <div class="weui-cell">
         <div class="weui-cell__bd">
           <input class="weui-input" v-model.trim="title" type="text" placeholder="在此输入通知标题"/>
         </div>
       </div>
-      <div  class="weui-cell">
+      <div class="weui-cell">
         <div class="weui-cell__bd">
-          <textarea  style="width: 100%" rows="8" v-model.trim="description"
+          <textarea style="width: 100%" rows="8" v-model.trim="description"
                     class="weui-textarea"
                     placeholder="在此输入通知内容"></textarea>
-          <extra-file  v-bind:msgType="msgType" v-on:showToast="showToast"
-                      v-bind:uploadFiles="uploadFiles" v-on:uploadFile="getUploadFile"></extra-file>
+          <extra-file v-bind:msgType="msgType" v-on:showToast="showToast"
+                      v-bind:uploadFiles="uploadFiles" v-on:uploadFiles="getUploadFiles"></extra-file>
         </div>
       </div>
       <div class="weui-cell weui-cell_access" v-on:click="routeToPersons">
@@ -164,16 +164,15 @@
             break
         }
       },
-      getUploadFile: function (fileInfo) {
-        console.log('dynamic-publish.vue获取的文件信息:' + JSON.stringify(fileInfo))
-        this.uploadFile = fileInfo
+      getUploadFiles: function (files) {
+        console.log('dynamic-publish.vue获取的文件信息:' + JSON.stringify(files))
         switch (this.msgType) {
           case 2:
           case 3:
-            this.$emit('uploadFiles', this.uploadFiles.concat(fileInfo))
+            this.$emit('uploadFiles', this.uploadFiles.concat(files))
             break
           default:
-            this.$emit('uploadFiles', [fileInfo])
+            this.$emit('uploadFiles', files)
             break
         }
 
