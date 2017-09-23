@@ -25,7 +25,8 @@
                     class="weui-textarea"
                     placeholder="在此输入通知内容"></textarea>
           <extra-file v-bind:msgType="msgType" v-on:showToast="showToast"
-                      v-bind:uploadFiles="uploadFiles" v-on:uploadFiles="getUploadFiles"></extra-file>
+                      v-bind:uploadFiles="uploadFiles" v-on:uploadFiles="getUploadFiles"
+                      v-on:isUploading="isUploading"></extra-file>
         </div>
       </div>
       <div class="weui-cell weui-cell_access" v-on:click="routeToPersons">
@@ -46,7 +47,8 @@
       </div>
     </div>
     <a class="weui-btn weui-btn_primary" v-on:click="publishMethod">发布</a>
-    <toast v-bind:isShow="isShowToast" v-bind:toastContent="toastContent" v-on:toastClosed="isShowToast=false"></toast>
+    <toast v-bind:isShow="isShowToast" v-bind:isLoading="isLoading" v-bind:toastContent="toastContent"
+           v-on:toastClosed="isShowToast=false"></toast>
   </div>
 </template>
 <script>
@@ -107,13 +109,17 @@
             description: true,
             extra: false
           },
-          publishing: false
+          publishing: false,
+          isLoading: false
         }
       },
       showToast: function (content) {
         this.toastContent = content
         this.isShowToast = true
 
+      },
+      isUploading: function (isUp) {
+        this.isLoading = isUp
       },
       setElementShow: function (type) {
         switch (type) {
