@@ -2,18 +2,6 @@
 <template>
   <div>
     <div class="weui-cells">
-      <!--<div class="weui-cell weui-cell_select weui-cell_select-after ">-->
-      <!--<div class="weui-cell__hd">-->
-      <!--<label for class="weui-label">消息类型</label>-->
-      <!--</div>-->
-      <!--<div class="weui-cell__bd">-->
-      <!--<select class="weui-select" name="select" v-on:change="getMsgType($event)">-->
-      <!--<option v-for="(msgStyle,index) in msgStyles" v-bind:selected="msgStyle.typeNo===msgType"-->
-      <!--v-bind:value="msgStyle.typeNo">{{msgStyle.typeName}}-->
-      <!--</option>-->
-      <!--</select>-->
-      <!--</div>-->
-      <!--</div>-->
       <div class="weui-cell">
         <div class="weui-cell__bd">
           <input class="weui-input" v-model.trim="title" type="text" placeholder="在此输入通知标题"/>
@@ -57,7 +45,6 @@
   import router from '../router/index'
   import request from '../utils/request'
   import toast from './toast.vue'
-  import $ from 'jquery'
 
   export default {
     name: 'dynamic-publish',

@@ -30,7 +30,7 @@
     },
     data: function () {
       return {
-        lsitData: []
+        listData: []
       }
     }
   }

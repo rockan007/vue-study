@@ -1,22 +1,22 @@
 <!--文件选择组件-->
 <template>
-    <div class='weui-uploader'>
-      <div class='weui-uploader__bd'>
-        <ul class='weui-uploader__files' id="uploaderFiles">
-          <li v-for="(image,index) in showImages" class='weui-uploader__file'
-              v-bind:style="{backgroundImage:'url('+image+')'}" v-on:click="previewImage()">
-            <div class="weui-uploader__file-content"
-                 v-bind:class="[{displayNone:msgType!==5},{displayBlock:msgType===5}]">
-              video
-            </div>
-          </li>
-        </ul>
-        <div class='weui-uploader__input-box'>
-          <input id="uploaderInput" class='weui-uploader__input' type="file" v-bind:accept="getAcceptType()"
-                 v-on:change="selectFile($event)" v-bind:disabled="uploadFiles.length>=9" multiple>
-        </div>
+  <div class='weui-uploader'>
+    <div class='weui-uploader__bd'>
+      <ul class='weui-uploader__files' id="uploaderFiles">
+        <li v-for="(image,index) in showImages" class='weui-uploader__file'
+            v-bind:style="{backgroundImage:'url('+image+')'}" v-on:click="previewImage()">
+          <div class="weui-uploader__file-content"
+               v-bind:class="[{displayNone:msgType!==5},{displayBlock:msgType===5}]">
+            video
+          </div>
+        </li>
+      </ul>
+      <div class='weui-uploader__input-box'>
+        <input id="uploaderInput" class='weui-uploader__input' type="file" v-bind:accept="getAcceptType()"
+               v-on:change="selectFile($event)" v-bind:disabled="uploadFiles.length>=9" multiple>
       </div>
     </div>
+  </div>
 </template>
 <script>
   import router from '../router/index'
@@ -145,7 +145,7 @@
       uploadFile: function (files) {
         let com = this
         com.isUploading = true
-        this.$emit('isUploading',isUploading)
+        this.$emit('isUploading', com.isUploading)
         switch (this.msgType) {
           case 1:
           case 2:
@@ -182,7 +182,7 @@
         }
       },
       uploadImage: function (img, index, callback) {
-        let com=this;
+        let com = this
         compress.uploadImg(img, 2, function (response) {
           console.log('已上傳的文件！' + JSON.stringify(response))
           if (response.RspCode === '0000') {
@@ -190,7 +190,7 @@
 //            com.$emit('uploadFile', response.RspData)
           } else {
             com.isUploading = false
-            com.$emit('isUploading',isUploading)
+            com.$emit('isUploading', com.isUploading)
             com.$emit('showToast', '上传失败，请重新上传')
             console.log('发生错误！' + JSON.stringify(response))
           }

@@ -1,13 +1,13 @@
 <!--消息通知界面-->
 <template>
   <div>
-    <msg-search></msg-search>
+    <search></search>
     <msg-banner></msg-banner>
     <msg-list></msg-list>
   </div>
 </template>
 <script>
-  import msgSearch from './message-search.vue';
+  import msgSearch from './search.vue';
   import msgBanner from './message-banner.vue';
   import msgList from './message-list.vue';
 

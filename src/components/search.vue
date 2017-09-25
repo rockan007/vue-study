@@ -12,14 +12,14 @@
         <span>搜索</span>
       </label>
     </form>
+    <a class="weui-search-bar__cancel-btn" id="searchCancel">取消</a>
   </div>
 </template>
 
 <script>
-  import $ from 'jquery'
 
   export default {
-    name: 'msg-search',
+    name: 'search',
     data: function () {
       return {}
     },
