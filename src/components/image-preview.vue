@@ -1,6 +1,6 @@
 <!--组件：图片预览-->
 <template>
-  <div>
+  <div class="preview-container">
     <div class="weui-gallery display-block" id="gallery" v-on:click="showGallery=false">
       <div class="swiper-container">
         <!-- Additional required wrapper -->
@@ -144,6 +144,10 @@
   .display-block {
     display: block;
     opacity: 1;
+  }
+
+  .preview-container {
+    position: relative;
   }
 
   .swiper-container {
