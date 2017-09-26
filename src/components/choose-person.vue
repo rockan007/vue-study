@@ -440,7 +440,7 @@
   input[type=checkbox]:checked + .weui-icon-checked:before {
     display: inline-block;
     content: '\EA06';
-    color: #09BB07;
+    color: #46bdff;
     font-size: 23px;
   }
 

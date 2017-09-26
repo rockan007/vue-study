@@ -79,7 +79,7 @@ export default new Router({
       component: readContainer
     },
     {//界面：图片预览
-      path: '/image-preview',
+      path: '/image-preview/:index',
       name: 'image-preview',
       component: imagePreview
     }

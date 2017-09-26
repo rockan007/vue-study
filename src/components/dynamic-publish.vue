@@ -236,17 +236,17 @@
             }
             break
           case 2://圖文
-            publishContent = $.extend({
+            publishContent = {
               news: {
                 articles: [
                   {
                     title: this.title,
                     description: this.description,
-                    picurl: this.uploadFiles[0].fileurl
+                    picurl: this.getPostFileInfo().fileurl
                   }
                 ]
               }
-            }, this.getPostFileInfo())
+            }
             break
           case 3://
             publishContent = this.uploadFile
@@ -340,6 +340,18 @@
 <style scoped>
   .weui-cells {
     margin-top: 0;
+  }
+  .weui-switch:checked {
+    border-color: #46bdff;
+    background-color: #46bdff;
+  }
+  .weui-btn_primary {
+    background-color: #46bdff;
+  }
+
+  .weui-btn_primary:not(.weui-btn_disabled):active {
+    color: hsla(0, 0%, 100%, .6);
+    background-color: #46bdff;
   }
 </style>
 

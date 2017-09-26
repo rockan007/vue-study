@@ -68,6 +68,7 @@
     },
     mounted: function () {
       this.mSwiper = new Swiper('.swiper-container', {
+        initialSlide: parseInt(this.$route.params.id),
         pagination: '.swiper-pagination',
         paginationClickable: true
       })
@@ -125,6 +126,7 @@
         this.dealtImages.splice(this.mSwiper.activeIndex, 1)
         console.log('删除文件后的值：' + JSON.stringify(this.dealtImages))
         this.$emit('dealtImages', this.dealtImages)
+        this.mSwiper.removeSlide(this.dealtImages.length)
         this.showDialog = false
         if (this.dealtImages.length === 0) {
           router.go(-1)

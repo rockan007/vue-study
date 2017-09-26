@@ -10,7 +10,7 @@
       </div>
       <div class="weui-flex__item" v-on:click="chooseDepartsPersons">
         <a class="weui-btn weui-btn_primary">
-          确定({{chosePersons.length > 99 ? "99+" :chosePersons.length}})
+          确定({{chosePersons.length > 99 ? "99+" : chosePersons.length}})
         </a>
       </div>
     </div>
@@ -26,25 +26,25 @@
     props: {},
     data: function () {
       return {
-        chosePersons:events.getSessionArray(consts.KEY_CHOOSE_PERSONS)
+        chosePersons: events.getSessionArray(consts.KEY_CHOOSE_PERSONS)
       }
     },
     methods: {
       chooseDepartsPersons: function () {
         this.$emit('chosePersons', this.chosePersons)
-        this.routerToPub();
+        this.routerToPub()
       },
-      routerToPub: function() {
-        let pos = this.getPosition();
-        console.log("@@@@@com-persen@@@@@导向发布页面");
-        router.go(-parseInt(pos));
+      routerToPub: function () {
+        let pos = this.getPosition()
+        console.log('@@@@@com-persen@@@@@导向发布页面')
+        router.go(-parseInt(pos))
       },
-      getPosition: function() {
-        let id = 1;
-        if(parseInt(this.$route.params.id) > 0) {
+      getPosition: function () {
+        let id = 1
+        if (parseInt(this.$route.params.id) > 0) {
           id = parseInt(this.$route.params.id)
         }
-        return events.getSessionMapValue(consts.KEY_DEPART_POSITION, id);
+        return events.getSessionMapValue(consts.KEY_DEPART_POSITION, id)
       },
       getTogglePersons: function (persons, isAdd) {
         console.log('000000#######choose-person.html######' + JSON.stringify(persons) + '是否添加' + isAdd)
@@ -82,7 +82,17 @@
     background-color: white;
     z-index: 99;
   }
+
   .margin-bottom50 {
     margin-bottom: 50px;
+  }
+
+  .weui-btn_primary {
+    background-color: #46bdff;
+  }
+
+  .weui-btn_primary:not(.weui-btn_disabled):active {
+    color: hsla(0, 0%, 100%, .6);
+    background-color: #46bdff;
   }
 </style>

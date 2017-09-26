@@ -4,7 +4,7 @@
     <div class='weui-uploader__bd'>
       <ul class='weui-uploader__files' id="uploaderFiles">
         <li v-for="(image,index) in showImages" class='weui-uploader__file'
-            v-bind:style="{backgroundImage:'url('+image+')'}" v-on:click="previewImage()">
+            v-bind:style="{backgroundImage:'url('+image+')'}" v-on:click="previewImage(index)">
           <div class="weui-uploader__file-content"
                v-bind:class="[{displayNone:msgType!==5},{displayBlock:msgType===5}]">
             video
@@ -83,13 +83,16 @@
             break
         }
       },
-      previewImage: function () {
+      previewImage: function (index) {
         console.log('选择后的文件点击事件')
         if (this.msgType !== 1 && this.msgType !== 2 && this.msgType !== 3) {
           return
         }
         router.push({
-          name: 'image-preview'
+          name: 'image-preview',
+          params: {
+            index: parseInt(index)
+          }
         })
       },
       getAcceptType: function () {
@@ -152,12 +155,13 @@
           case 3:
             let count = 0
             let upLoaded = []
-            files.forEach(function (file, index) {
+            Array.from(files).forEach(function (file, index) {
               com.uploadImage(file, index, function (i, data) {
                 count++
                 upLoaded[i] = data
                 if (count === files.length) {
                   com.isUploading = false
+                  com.$emit('isUploading', com.isUploading)
                   com.$emit('uploadFiles', upLoaded)
                 }
               })
