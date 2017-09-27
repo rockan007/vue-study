@@ -1,37 +1,21 @@
 <template>
   <div v-if="isLoading">loading</div>
   <div v-else class="weui-cells">
-    <template>
-      <!--人员选项-->
-      <label v-for="(item,index) in curDepartInfo.personList" v-bind:for="item.userid"
-             class="weui-cell weui-check__label">
-        <div class="weui-cell__hd">
-          <input type="checkbox" class="weui-check" v-bind:id="item.userid" v-bind:value="item.userid"
+    <!--部门选项-->
+    <a v-for="(item,index) in curDepartInfo.departList" class="weui-cell weui-cell_access">
+      <div class="weui-cell__hd">
+        <label v-bind:for="item.value">
+          <input type="checkbox" class="" v-bind:id="item.value" v-bind:value="item.value"
                  v-bind:checked="isAllChecked||item.isChecked"
-                 v-on:change="togglePerson(item,$event)">
+                 v-on:change="toggleDepart(item,$event)"/>
           <i class="weui-icon-checked"></i>
-        </div>
-        <div class="weui-cell__bd">
-          <p>{{item.name}}</p>
-        </div>
-      </label>
-      <!--部门选项-->
-      <a v-for="(item,index) in curDepartInfo.departList" class="weui-cell weui-cell_access"
-         v-on:click="routerToChild(item,index)">
-        <!--<div class="weui-cell__hd">-->
-        <!--&lt;!&ndash;<label v-bind:for="item.value">&ndash;&gt;-->
-        <!--&lt;!&ndash;<input type="checkbox" class="" v-bind:id="item.value" v-bind:value="item.value"&ndash;&gt;-->
-        <!--&lt;!&ndash;v-bind:checked="isAllChecked||item.isChecked"&ndash;&gt;-->
-        <!--&lt;!&ndash;v-on:change="toggleDepart(item,$event)"/>&ndash;&gt;-->
-        <!--&lt;!&ndash;<i class="weui-icon-checked"></i>&ndash;&gt;-->
-        <!--&lt;!&ndash;</label>&ndash;&gt;-->
-        <!--</div>-->
-        <div class="weui-cell__bd">
-          <p>{{item.title}}</p>
-        </div>
-        <div class="weui-cell__ft"></div>
-      </a>
-    </template>
+        </label>
+      </div>
+      <div class="weui-cell__bd" v-on:click="routerToChild(item,index)">
+        <p>{{item.title}}</p>
+      </div>
+      <div class="weui-cell__ft" v-on:click="routerToChild(item,index)"></div>
+    </a>
   </div>
 </template>
 <script>
@@ -63,25 +47,92 @@
       }
     },
     methods: {
-      /**
-       * 选中，或取消选中的人
-       * @param {Object} person 添加或删除的人员
-       * @param {e} event 事件
-       */
-      togglePerson: function (person, event) {
-        let isAdd = event.target.checked
-        storage.toggleVlaueInSessionMap(consts.KEY_CHOOSE_PERSONS, person.id, person.name, isAdd)
-      },
+      setDepartStatus: function () {
+        let childDeparts = this.curDepartInfo.departList
+        let choseAllDeparts = storage.getSessionSet(consts.KEY_ALL_CHOOSE_DEPARTS)
+        for (let childDepart of childDeparts) {
+          if (choseAllDeparts.has(childDepart.value)) {//如果已存在数组中
+            childDepart.isChecked = true
+          } else {//不存在于已选数组中
+            let departIds = new Set()
+            this.getAllLastChildIds(childDepart, departIds)
+            childDepart.isChecked = Array.from(departIds).every(function (departId) {
+              return choseAllDeparts.has(departId)
+            })
+          }
 
-      setPersonListStatus: function () {
-        let chosePersonMap = storage.getSessionMap(consts.KEY_CHOOSE_PERSONS)
-        for (let person of this.curDepartInfo.personList) {
-          person.isChecked = chosePersonMap.hasKey(person.id)
+        }
+        this.isLoading = false
+      },
+      /**
+       * 添加或删除部门的逻辑
+       * @param{Object} depart 要处理的部门信息
+       * @param{boolean} isAdd true 添加 false 删除
+       */
+      toggleChoseDepart: function (depart, isAdd) {
+        let ids = new Set()
+        if (!isAdd) {
+          this.getAllParentIds(depart, ids)
+        }
+        this.getAllChildDeparts(depart, ids)
+        let allChoseDeparts = storage.getSessionSet(consts.KEY_ALL_CHOOSE_DEPARTS)
+        let choseDeparts = storage.getSessionMap(consts.KEY_CHOOSE_DEPARTS)
+        for (let id of ids) {
+          if (isAdd) {
+            allChoseDeparts.set(id)
+          } else {
+            allChoseDeparts.delete(id)
+            choseDeparts.delete(id)
+          }
+        }
+        if (isAdd) {
+          allChoseDeparts.set(depart.value)
+          choseDeparts.set(depart.value, depart.title)
+        } else {
+          allChoseDeparts.delete(depart.value)
+          choseDeparts.delete(depart.value)
+        }
+        storage.setSessionStorage(consts.KEY_ALL_CHOOSE_DEPARTS, allChoseDeparts)
+        storage.setSessionStorage(consts.KEY_CHOOSE_DEPARTS, choseDeparts)
+
+      },
+      getAllLastChildIds: function (depart, ids) {
+        if (depart.departList.length > 0) {
+          for (let childDepart of depart.departList) {
+            this.getAllChildIds(childDepart, ids)
+          }
+        } else {
+          return ids.set(depart.value)
         }
       },
       /**
-       * 获取所有部门列表
+       * 递归获取部门的父部门
        */
+      getAllParentIds: function (depart, ids) {
+        if (typeof (depart.parentDepart.value) === 'number') {
+          ids.set(depart.parentDepart.value)
+          this.getAllParentIds(depart.parentDepart, ids)
+        } else {
+          return ids
+        }
+      },
+      /**
+       * 递归获取depart的子部门
+       */
+      getAllChildIds: function (depart, ids) {
+        if (depart.departList.length > 0) {
+          for (let childDepart of depart.departList) {
+            ids.push(childDepart.value)
+            this.getAllChildIds(childDepart, ids)
+          }
+        } else {
+          return ids.push(depart.value)
+        }
+      },
+      toggleDepart: function (depart, event) {
+        let isAdd = event.target.checked
+        this.toggleChoseDepart(depart, isAdd)
+      },
       requireAllDepartList: function () {
         let com = this
         com.isLoading = true
@@ -99,29 +150,13 @@
         })
       },
       /**
-       * 获取当前部门人员
-       */
-      getCurDepartPersons: function () {
-        let com = this
-        if (com.curDepartInfo.personList.length === 0) {
-          request.getDepartPersons(com.$route.params.id, 0, 1, function (data) {
-            console.log('获取的本部门人员:' + JSON.stringify(data))
-            com.curDepartInfo.personList = data
-            com.setPersonListStatus()
-            com.isLoading = false
-          })
-        } else {
-          com.isLoading = false
-        }
-      },
-      /**
-       *获取当前部门信息
+       *
        */
       getCurDepartInfo: function () {
         let pathArr = this.path.split('-')
         this.curDepartInfo = this.getNodeInTree(this.childrenTree, pathArr)
         this.departList = this.curDepartInfo.departList
-        this.getCurDepartPersons()
+        this.setDepartStatus()
       },
       /**
        * 根据路径获取在tree数组中的值
@@ -169,11 +204,6 @@
         console.log('重拍数组后的数据：' + JSON.stringify(roots))
         return roots
       },
-      /**
-       * 从array中获取含parents的树形结构
-       * @param nodes
-       * @returns {Array}
-       */
       getParentsTree: function (nodes) {
         if (!nodes || nodes.length === 0) {
           nodes = this.nodes
@@ -200,12 +230,10 @@
         console.log('重拍数组后的数据：' + JSON.stringify(roots))
         return roots
       },
-      /**
-       * 跳转到子部门
-       * @param item 点击的部门信息
-       * @param index 部门的index
-       */
       routerToChild: function (item, index) {
+        if (item.departList.length === 0) {
+          return
+        }
         router.push({
           name: 'depart-person',
           params: {
