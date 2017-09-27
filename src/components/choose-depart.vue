@@ -77,15 +77,29 @@
         this.getAllChildDeparts(depart, ids)
         let allChoseDeparts = storage.getSessionSet(consts.KEY_ALL_CHOOSE_DEPARTS)
         let choseDeparts = storage.getSessionMap(consts.KEY_CHOOSE_DEPARTS)
+        if (!isAdd) {//如果是删除的部门的父部门为已选，则已选部门添加子部门数据
+          //需要递归？父部门的父部门为已选，则需要添加父部门的父部门的所有子部门
+          if (choseDeparts.has(this.curDepartInfo.value)) {
+            for (let depart of this.curDepartInfo.departList) {
+              choseDeparts.set(depart.value, depart.title)
+            }
+          }
+        }
         for (let id of ids) {
           if (isAdd) {
             allChoseDeparts.set(id)
           } else {
+            //如果删除当前部门， 此部门的父部门，如何添加此部门的旁系部门为已选择部门？
             allChoseDeparts.delete(id)
             choseDeparts.delete(id)
+
           }
         }
         if (isAdd) {
+          //如果添加当前部门，则判断当前部门的父部门是否为全选？
+          //如果为全选,则此部门父部门的父部门是否为全选？递归？
+          //如果只记录全部已选部门
+          //最后 在已选部门中 删除 已选部门的子部门,然后将set重组为已选部门
           allChoseDeparts.set(depart.value)
           choseDeparts.set(depart.value, depart.title)
         } else {
@@ -96,6 +110,12 @@
         storage.setSessionStorage(consts.KEY_CHOOSE_DEPARTS, choseDeparts)
 
       },
+      iaAllChildChose: function (choseDeparts) {
+        return this.curDepartInfo.departList.every(function (depart) {
+          return choseDeparts.has(depart.value)
+        })
+      },
+
       getAllLastChildIds: function (depart, ids) {
         if (depart.departList.length > 0) {
           for (let childDepart of depart.departList) {

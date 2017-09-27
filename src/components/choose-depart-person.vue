@@ -76,7 +76,7 @@
       setPersonListStatus: function () {
         let chosePersonMap = storage.getSessionMap(consts.KEY_CHOOSE_PERSONS)
         for (let person of this.curDepartInfo.personList) {
-          person.isChecked = chosePersonMap.hasKey(person.id)
+          person.isChecked = chosePersonMap.has(person.id)
         }
       },
       /**
