@@ -7,16 +7,15 @@
         <div class="swiper-wrapper">
           <!-- Slides -->
           <div v-for="(image,index) in dealtImages" class="swiper-slide" v-bind:style="{backgroundImage:'url('+image.fileurl+')',
-          backgroundSize:'cover'}">
+          backgroundSize:'cover',backgroundPosition:'center'}">
           </div>
         </div>
         <!-- If we need pagination -->
         <div v-show="dealtImages.length>1" class="swiper-pagination"></div>
       </div>
-      <div class="weui-gallery__opr" v-on:click="showDialog=true">
+      <div class="weui-gallery__opr">
         <a class="weui-gallery__del">
-          <i class="weui-icon-delete weui-icon_gallery-delete">
-
+          <i class="weui-icon-delete weui-icon_gallery-delete" v-on:click="showDialog=true">
           </i>
         </a>
       </div>
@@ -68,7 +67,7 @@
     },
     mounted: function () {
       this.mSwiper = new Swiper('.swiper-container', {
-        initialSlide: parseInt(this.$route.params.id),
+        initialSlide: parseInt(this.$route.params.index),
         pagination: '.swiper-pagination',
         paginationClickable: true
       })

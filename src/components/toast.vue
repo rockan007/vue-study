@@ -2,7 +2,7 @@
   <div v-bind:class="[{'display-none':!isToastShow&&!isLoading},{'display-show':isToastShow||isLoading}]">
     <div class="weui-mask_transparent"></div>
     <div class="weui-toast">
-      <i class="weui-icon-warn weui-icon_toast"
+      <i class="weui-icon_toast"
          v-bind:class="[{'weui-icon-warn':!isLoading},{'weui-loading':isLoading}]"></i>
       <p class="weui-toast__content">{{isLoading ? "数据加载中" : toastContent}}</p>
     </div>
