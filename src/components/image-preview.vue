@@ -11,7 +11,7 @@
           </div>
         </div>
         <!-- If we need pagination -->
-        <div class="swiper-pagination"></div>
+        <div v-show="dealtImages.length>1" class="swiper-pagination"></div>
       </div>
       <div class="weui-gallery__opr" v-on:click="showDialog=true">
         <a class="weui-gallery__del">
@@ -150,10 +150,18 @@
     position: relative;
   }
 
+  .weui-gallery__opr {
+    background-color: transparent;
+    z-index: 1123;
+  }
+
+  .swiper-container-horizontal > .swiper-pagination-bullets {
+    top: 10px;
+  }
+
   .swiper-container {
     width: 100%;
-    height: 90%;
-    margin-bottom: 60px;
+    height: 100%;
   }
 
   .swiper-slide {
