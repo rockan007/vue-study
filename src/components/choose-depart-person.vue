@@ -18,14 +18,6 @@
       <!--部门选项-->
       <a v-for="(item,index) in curDepartInfo.departList" class="weui-cell weui-cell_access"
          v-on:click="routerToChild(item,index)">
-        <!--<div class="weui-cell__hd">-->
-        <!--&lt;!&ndash;<label v-bind:for="item.value">&ndash;&gt;-->
-        <!--&lt;!&ndash;<input type="checkbox" class="" v-bind:id="item.value" v-bind:value="item.value"&ndash;&gt;-->
-        <!--&lt;!&ndash;v-bind:checked="isAllChecked||item.isChecked"&ndash;&gt;-->
-        <!--&lt;!&ndash;v-on:change="toggleDepart(item,$event)"/>&ndash;&gt;-->
-        <!--&lt;!&ndash;<i class="weui-icon-checked"></i>&ndash;&gt;-->
-        <!--&lt;!&ndash;</label>&ndash;&gt;-->
-        <!--</div>-->
         <div class="weui-cell__bd">
           <p>{{item.title}}</p>
         </div>
@@ -48,8 +40,8 @@
           departList: [],
           personList: []
         },
-        departId: parseInt(this.$route.params.id),
-        path: this.$route.params.path,
+        departId: -1,
+        path: '0',
         childrenTree: [],
         isLoading: false
       }
@@ -59,10 +51,20 @@
     },
     watch: {
       $route (to, from) {
+        console.log('当前routeId:' + this.$route.params.id + ',当前routePath:' + this.$route.params.path)
+        this.departId = parseInt(this.$route.params.id)
+        this.path = this.$route.params.path
+        console.log('当前的departId：' + this.departId + ',当前path:' + this.path)
         this.requireAllDepartList()
       }
     },
+    beforeRouteLeave: function () {
+      this.setSessionStorage()
+    },
     methods: {
+      setSessionStorage: function () {
+        storage.setSessionStorage(consts.KEY_DEPARTS_PARENTS_TREE, this.childrenTree)
+      },
       /**
        * 选中，或取消选中的人
        * @param {Object} person 添加或删除的人员
@@ -71,6 +73,7 @@
       togglePerson: function (person, event) {
         let isAdd = event.target.checked
         storage.toggleVlaueInSessionMap(consts.KEY_CHOOSE_PERSONS, person.id, person.name, isAdd)
+        this.$emit('chosePersons', storage.getSessionMap(consts.KEY_CHOOSE_DEPARTS))
       },
 
       setPersonListStatus: function () {
@@ -88,13 +91,14 @@
         //如果有数据
         if (storage.getSessionArray(consts.KEY_DEPARTS_CHILDREN_TREE).length > 0) {
           com.childrenTree = storage.getSessionArray(consts.KEY_DEPARTS_CHILDREN_TREE)
+          console.log('requireAllDepartList获取的本地存储数组：' + JSON.stringify(com.childrenTree))
           com.getCurDepartInfo()
           return
         }
         //没有数据，请求数据
         request.getDepartList(function (response) {
           console.log('depart-person获取的部门列表：' + JSON.stringify(response))
-          com.childrenTree = com.getChildrenTree(response)
+          com.childrenTree = com.getChildrenTree(JSON.parse(response))
           com.getCurDepartInfo()
         })
       },
@@ -109,6 +113,7 @@
             com.curDepartInfo.personList = data
             com.setPersonListStatus()
             com.isLoading = false
+            console.log('getCurDepartPersons获取的本部门数据：' + JSON.stringify(com.curDepartInfo))
           })
         } else {
           com.isLoading = false
@@ -119,22 +124,25 @@
        */
       getCurDepartInfo: function () {
         let pathArr = this.path.split('-')
+        storage.toggleVlaueInSessionMap(consts.KEY_DEPART_POSITION, this.departId, pathArr.length, true)
+        console.log('本部门的路径：' + pathArr)
+//        console.log('返回的值：' + JSON.stringify(this.getNodeInTree(this.childrenTree, pathArr)))
         this.curDepartInfo = this.getNodeInTree(this.childrenTree, pathArr)
-        this.departList = this.curDepartInfo.departList
+        console.log('获取的本部门信息：' + JSON.stringify(this.curDepartInfo))
         this.getCurDepartPersons()
       },
       /**
        * 根据路径获取在tree数组中的值
        * @param tree
        * @param pathArr 路径数组
-       * @returns {*} departInfo
+       * @returns {Object} departInfo
        */
       getNodeInTree: function (tree, pathArr) {
         if (pathArr.length === 1) {
           console.log('根据路径获取的node节点：' + JSON.stringify(tree[pathArr[0]]))
           return tree[pathArr[0]]
         } else {
-          this.getNodeInTree(tree[pathArr[0]], pathArr.splice(0, 1))
+          this.getNodeInTree(tree[pathArr[0]].departList, pathArr.splice(0, 1))
         }
       },
       /**
@@ -170,37 +178,6 @@
         return roots
       },
       /**
-       * 从array中获取含parents的树形结构
-       * @param nodes
-       * @returns {Array}
-       */
-      getParentsTree: function (nodes) {
-        if (!nodes || nodes.length === 0) {
-          nodes = this.nodes
-        }
-        nodes.sort(function (a, b) {
-          return a.value - b.value
-        })
-        let map = {},
-          node,
-          roots = []
-        for (let i = 0; i < nodes.length; i++) {
-          node = nodes[i]
-
-          map[node.value] = i // use map to look-up the parents
-          roots.push(node)
-          if (node.parentvalue > 0) {
-            if (node.parentvalue === 1) {
-              nodes[i].parentDepart = nodes[map[-1]]
-            } else {
-              nodes[i].parentDepart = nodes[map[node.parentvalue]]
-            }
-          }
-        }
-        console.log('重拍数组后的数据：' + JSON.stringify(roots))
-        return roots
-      },
-      /**
        * 跳转到子部门
        * @param item 点击的部门信息
        * @param index 部门的index
@@ -210,7 +187,7 @@
           name: 'depart-person',
           params: {
             id: item.value,
-            path: path + '-' + index
+            path: this.path + '-' + index
           }
         })
       }

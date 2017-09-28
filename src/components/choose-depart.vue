@@ -32,8 +32,8 @@
           departList: [],
           personList: []
         },
-        departId: parseInt(this.$route.params.id),
-        path: this.$route.params.path,
+        departId: -1,
+        path: '0',
         childrenTree: [],
         parentTree: [],
         isLoading: false
@@ -47,6 +47,8 @@
     },
     watch: {
       $route (to, from) {
+        this.departId = parseInt(this.$route.params.id)
+        this.path = this.$route.params.path
         this.requireAllDepartList()
       }
     },
@@ -56,6 +58,7 @@
         storage.setSessionStorage(consts.KEY_DEPARTS_CHILDREN_TREE, this.childrenTree)
       },
       setDepartStatus: function () {
+        console.log('****choose-depart****setDepartStatus*****')
         let childDeparts = this.curDepartInfo.departList
         let choseAllDeparts = storage.getSessionSet(consts.KEY_ALL_CHOOSE_DEPARTS)
         for (let childDepart of childDeparts) {
@@ -78,6 +81,7 @@
        * @param{boolean} isAdd true 添加 false 删除
        */
       toggleChoseDepart: function (depart, isAdd) {
+        console.log('****choose-depart****toggleChoseDepart*****')
         let ids = new Set()
         if (!isAdd) {
           this.getAllParentIds(depart, ids)
@@ -114,11 +118,13 @@
 
       },
       setParentIsChose: function (choseDeparts, allChoseDeparts) {
+        console.log('****choose-depart****setParentIsChose*****')
         let curDepartInfoParent = this.getParentNode()
         this.setParentChoseInSession(curDepartInfoParent, choseDeparts, allChoseDeparts)
 
       },
       setParentChoseInSession: function (curDepart, choseDeparts, allChoseDeparts) {
+        console.log('****choose-depart****setParentChoseInSession****')
         let isChose = curDepart.departList.every(function (depart) {
           choseDeparts.has(depart.value)
         })
@@ -134,6 +140,7 @@
         }
       },
       getParentNode: function () {
+        console.log('****choose-depart****getParentNode****')
         for (let parentDepart of this.parentTree) {
           if (parentDepart.value === this.curDepartInfo.value) {
             return parentDepart
@@ -141,13 +148,16 @@
         }
       },
       addParentChildDeparts: function (choseDeparts) {
+        console.log('****choose-depart****addParentChildDeparts****')
         let pathArr = this.path.split('-')
+        storage.toggleVlaueInSessionMap(consts.KEY_DEPART_POSITION, this.departId, pathArr.length, true)
         let choseParent = this.getChoseParent(this.childrenTree, pathArr, choseDeparts)
         if (choseParent !== null) {
           this.addChildInSession(choseParent, choseDeparts)
         }
       },
       addChildInSession: function (choseParent, choseDeparts) {
+        console.log('****choose-depart****addChildInSession****')
         if (this.curDepartInfo.departList.length > 0 && choseParent.value === this.curDepartInfo.departList[0].value) {
           return
         }
@@ -162,17 +172,19 @@
 
       },
       getChoseParent: function (childTree, pathArr, choseDeparts) {
+        console.log('****choose-depart****getChoseParent****')
         if (pathArr.length > 1) {
           if (choseDeparts.has(childTree[pathArr[0]].value)) {
             return childTree[pathArr[0]]
           } else {
-            this.getChoseParent(childTree[pathArr[0]], pathArr.splice(0, 1), choseDeparts)
+            this.getChoseParent(childTree[pathArr[0]].departList, pathArr.splice(0, 1), choseDeparts)
           }
         } else {
           return null
         }
       },
       getAllLastChildIds: function (depart, ids) {
+        console.log('****choose-depart**** getAllLastChildIds****')
         if (depart.departList.length > 0) {
           for (let childDepart of depart.departList) {
             this.getAllChildIds(childDepart, ids)
@@ -185,6 +197,7 @@
        * 递归获取部门的父部门
        */
       getAllParentIds: function (depart, ids) {
+        console.log('****choose-depart**** getAllParentIds****')
         if (typeof (depart.parentDepart.value) === 'number') {
           ids.set(depart.parentDepart.value)
           this.getAllParentIds(depart.parentDepart, ids)
@@ -196,20 +209,23 @@
        * 递归获取depart的子部门
        */
       getAllChildIds: function (depart, ids) {
+        console.log('****choose-depart**** getAllChildIds****')
         if (depart.departList.length > 0) {
           for (let childDepart of depart.departList) {
-            ids.push(childDepart.value)
+            ids.set(childDepart.value)
             this.getAllChildIds(childDepart, ids)
           }
         } else {
-          return ids.push(depart.value)
+          return ids.set(depart.value)
         }
       },
       toggleDepart: function (depart, event) {
+        console.log('****choose-depart****toggleDepart****')
         let isAdd = event.target.checked
         this.toggleChoseDepart(depart, isAdd)
       },
       requireAllDepartList: function () {
+        console.log('****choose-depart****requireAllDepartList****')
         let com = this
         com.isLoading = true
         //如果有数据
@@ -221,9 +237,9 @@
         }
         //没有数据，请求数据
         request.getDepartList(function (response) {
-          console.log('depart-person获取的部门列表：' + JSON.stringify(response))
-          com.childrenTree = com.getChildrenTree(response)
-          com.parentTree = com.getParentsTree(response)
+          console.log('depart-person获取的部门列表：' + response)
+          com.childrenTree = com.getChildrenTree(JSON.parse(response))
+          com.parentTree = com.getParentsTree(JSON.parse(response))
           com.getCurDepartInfo()
         })
       },
@@ -231,6 +247,7 @@
        *
        */
       getCurDepartInfo: function () {
+        console.log('****choose-depart****getCurDepartInfo****')
         let pathArr = this.path.split('-')
         this.curDepartInfo = this.getNodeInTree(this.childrenTree, pathArr)
         this.departList = this.curDepartInfo.departList
@@ -243,6 +260,7 @@
        * @returns {*} departInfo
        */
       getNodeInTree: function (tree, pathArr) {
+        console.log('****choose-depart****getNodeInTree****')
         if (pathArr.length === 1) {
           console.log('根据路径获取的node节点：' + JSON.stringify(tree[pathArr[0]]))
           return tree[pathArr[0]]
@@ -256,6 +274,7 @@
        * @returns {Array} tree结构数组
        */
       getChildrenTree: function (nodes) {
+        console.log('****choose-depart***getChildrenTree***')
         if (typeof (nodes) === 'undefined' || nodes.length === 0) {
           return []
         }
@@ -283,6 +302,7 @@
         return roots
       },
       getParentsTree: function (nodes) {
+        console.log('****choose-depart***getParentsTree***')
         if (!nodes || nodes.length === 0) {
           nodes = this.nodes
         }
@@ -309,6 +329,7 @@
         return roots
       },
       getChildrenList: function () {
+        console.log('****choose-depart***getChildrenList**')
         if (typeof (nodes) === 'undefined' || nodes.length === 0) {
           return []
         }
@@ -339,7 +360,7 @@
           name: 'depart-person',
           params: {
             id: item.value,
-            path: path + '-' + index
+            path: this.path + '-' + index
           }
         })
       }

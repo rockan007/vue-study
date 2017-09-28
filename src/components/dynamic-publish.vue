@@ -17,12 +17,20 @@
                       v-on:isUploading="isUploading"></extra-file>
         </div>
       </div>
-      <div class="weui-cell weui-cell_access" v-on:click="routeToPersons">
+      <div class="weui-cell weui-cell_access" v-on:click="routeToPersons(0)">
         <div class="weui-cell__bd">
           通知人员选择
         </div>
         <div class="weui-cell__ft">
-          {{chosePersons.length > 99 ? "99+" : chosePersons.length}}
+          {{chosePersons.size > 99 ? "99+" : chosePersons.size}}
+        </div>
+      </div>
+      <div class="weui-cell weui-cell_access" v-on:click="routeToPersons(1)">
+        <div class="weui-cell__bd">
+          通知部门选择
+        </div>
+        <div class="weui-cell__ft">
+          {{choseDeparts.size > 99 ? "99+" : choseDeparts.size}}
         </div>
       </div>
       <div class="weui-cell weui-cell_switch">
@@ -50,9 +58,15 @@
     name: 'dynamic-publish',
     props: {
       chosePersons: {
-        type: Array,
+        type: Map,
         default: function () {
-          return []
+          return new Map()
+        }
+      },
+      choseDeparts: {
+        type: Map,
+        default: function () {
+          return new Map()
         }
       },
       content: '',
@@ -97,7 +111,8 @@
             extra: false
           },
           publishing: false,
-          isLoading: false
+          isLoading: false,
+          chooseType: 0//0：人员 1部门
         }
       },
       showToast: function (content) {
@@ -316,9 +331,14 @@
           }
         }
       },
-      routeToPersons: function () {
+      routeToPersons: function (type) {
+        let name = type === 0 ? 'depart-person' : 'choose-depart'
         router.push({
-          name: 'choose-container',
+          name: name,
+          params: {
+            id: -1,
+            path: '0'
+          }
         })
       },
       //获取文档信息
@@ -341,10 +361,12 @@
   .weui-cells {
     margin-top: 0;
   }
+
   .weui-switch:checked {
     border-color: #46bdff;
     background-color: #46bdff;
   }
+
   .weui-btn_primary {
     background-color: #46bdff;
   }

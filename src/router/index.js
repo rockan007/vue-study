@@ -4,10 +4,11 @@ import dynamicPublish from '../components/dynamic-publish.vue'
 import msgHome from '../components/message-home.vue'
 import msgContainer from '../components/message-container.vue'
 import msgDetail from '../components/message-detail.vue'
-import choosePerson from '../components/choose-person.vue'
 import chooseContainer from '../components/choose-container.vue'
 import readContainer from '../components/read-container.vue'
 import imagePreview from '../components/image-preview.vue'
+import chooseDepart from '../components/choose-depart.vue'
+import departPerson from '../components/choose-depart-person.vue'
 
 Vue.use(Router)
 /**
@@ -57,9 +58,14 @@ export default new Router({
       component: chooseContainer,
       children: [
         {
-          path: 'choose-person/:id',
-          name: 'choose-person',
-          component: choosePerson
+          path: 'depart-person/:id/:path',
+          name: 'depart-person',
+          component: departPerson
+        },
+        {
+          path: 'choose-depart/:id/:path',
+          name: 'choose-depart',
+          component: chooseDepart
         },
         {
           path: '',

@@ -1,11 +1,13 @@
 <!--App首页-->
 <template>
   <div id="app">
-    <keep-alive include="dynamic-publish" >
+    <keep-alive include="dynamic-publish">
       <router-view v-bind:uploadFiles="uploadFiles"
                    v-on:uploadFiles="getUploadFiles"
                    v-on:chosePersons="getChosePerson"
+                   v-on:choseDeparts="getChoseDeparts"
                    v-bind:chosePersons="chosePersons"
+                   v-bind:choseDeparts="choseDeparts"
                    v-on:dealtImages="getDealtImages"></router-view>
     </keep-alive>
   </div>
@@ -16,7 +18,8 @@
     name: 'app',
     data: function () {
       return {
-        chosePersons: [],
+        chosePersons: new Map(),
+        choseDeparts: new Map(),
         uploadFiles: []
       }
     },
@@ -29,6 +32,9 @@
       //获取选择的人
       getChosePerson: function (persons) {
         this.chosePersons = persons
+      },
+      getChoseDeparts: function (departs) {
+        this.choseDeparts = departs
       },
       //获取伤处文件列表
       getUploadFiles: function (files) {
