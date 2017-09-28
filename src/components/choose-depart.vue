@@ -35,11 +35,15 @@
         departId: parseInt(this.$route.params.id),
         path: this.$route.params.path,
         childrenTree: [],
+        parentTree: [],
         isLoading: false
       }
     },
     created: function () {
       this.requireAllDepartList()
+    },
+    beforeRouteLeave: function () {
+      this.setSessionStorage()
     },
     watch: {
       $route (to, from) {
@@ -47,6 +51,10 @@
       }
     },
     methods: {
+      setSessionStorage: function () {
+        storage.setSessionStorage(consts.KEY_DEPARTS_PARENTS_TREE, this.parentTree)
+        storage.setSessionStorage(consts.KEY_DEPARTS_CHILDREN_TREE, this.childrenTree)
+      },
       setDepartStatus: function () {
         let childDeparts = this.curDepartInfo.departList
         let choseAllDeparts = storage.getSessionSet(consts.KEY_ALL_CHOOSE_DEPARTS)
@@ -78,12 +86,7 @@
         let allChoseDeparts = storage.getSessionSet(consts.KEY_ALL_CHOOSE_DEPARTS)
         let choseDeparts = storage.getSessionMap(consts.KEY_CHOOSE_DEPARTS)
         if (!isAdd) {//如果是删除的部门的父部门为已选，则已选部门添加子部门数据
-          //需要递归？父部门的父部门为已选，则需要添加父部门的父部门的所有子部门
-          if (choseDeparts.has(this.curDepartInfo.value)) {
-            for (let depart of this.curDepartInfo.departList) {
-              choseDeparts.set(depart.value, depart.title)
-            }
-          }
+          this.addParentChildDeparts(choseDeparts)
         }
         for (let id of ids) {
           if (isAdd) {
@@ -92,10 +95,10 @@
             //如果删除当前部门， 此部门的父部门，如何添加此部门的旁系部门为已选择部门？
             allChoseDeparts.delete(id)
             choseDeparts.delete(id)
-
           }
         }
-        if (isAdd) {
+        if (isAdd) {//添加
+          this.setParentIsChose()
           //如果添加当前部门，则判断当前部门的父部门是否为全选？
           //如果为全选,则此部门父部门的父部门是否为全选？递归？
           //如果只记录全部已选部门
@@ -110,12 +113,65 @@
         storage.setSessionStorage(consts.KEY_CHOOSE_DEPARTS, choseDeparts)
 
       },
-      iaAllChildChose: function (choseDeparts) {
-        return this.curDepartInfo.departList.every(function (depart) {
-          return choseDeparts.has(depart.value)
-        })
-      },
+      setParentIsChose: function (choseDeparts, allChoseDeparts) {
+        let curDepartInfoParent = this.getParentNode()
+        this.setParentChoseInSession(curDepartInfoParent, choseDeparts, allChoseDeparts)
 
+      },
+      setParentChoseInSession: function (curDepart, choseDeparts, allChoseDeparts) {
+        let isChose = curDepart.departList.every(function (depart) {
+          choseDeparts.has(depart.value)
+        })
+        if (isChose) {
+          allChoseDeparts.set(curDepart.value)
+          choseDeparts.set(curDepart.value, curDepart.title)
+          for (let depart of curDepart.departList) {
+            choseDeparts.delete(depart.value)
+          }
+          if (typeof (curDepart.parentDepart.value) !== 'undefined') {
+            this.setParentChoseInSession(curDepart.parentDepart, choseDeparts, allChoseDeparts)
+          }
+        }
+      },
+      getParentNode: function () {
+        for (let parentDepart of this.parentTree) {
+          if (parentDepart.value === this.curDepartInfo.value) {
+            return parentDepart
+          }
+        }
+      },
+      addParentChildDeparts: function (choseDeparts) {
+        let pathArr = this.path.split('-')
+        let choseParent = this.getChoseParent(this.childrenTree, pathArr, choseDeparts)
+        if (choseParent !== null) {
+          this.addChildInSession(choseParent, choseDeparts)
+        }
+      },
+      addChildInSession: function (choseParent, choseDeparts) {
+        if (this.curDepartInfo.departList.length > 0 && choseParent.value === this.curDepartInfo.departList[0].value) {
+          return
+        }
+        if (choseParent.departList.length > 0) {
+          for (let depart of choseParent.departList) {
+            choseDeparts.set(depart.value, depart.title)
+            this.addChildInSession(depart, choseDeparts)
+          }
+        } else {
+          return
+        }
+
+      },
+      getChoseParent: function (childTree, pathArr, choseDeparts) {
+        if (pathArr.length > 1) {
+          if (choseDeparts.has(childTree[pathArr[0]].value)) {
+            return childTree[pathArr[0]]
+          } else {
+            this.getChoseParent(childTree[pathArr[0]], pathArr.splice(0, 1), choseDeparts)
+          }
+        } else {
+          return null
+        }
+      },
       getAllLastChildIds: function (depart, ids) {
         if (depart.departList.length > 0) {
           for (let childDepart of depart.departList) {
@@ -159,6 +215,7 @@
         //如果有数据
         if (storage.getSessionArray(consts.KEY_DEPARTS_CHILDREN_TREE).length > 0) {
           com.childrenTree = storage.getSessionArray(consts.KEY_DEPARTS_CHILDREN_TREE)
+          com.parentTree = storage.getSessionArray(consts.KEY_DEPARTS_PARENTS_TREE)
           com.getCurDepartInfo()
           return
         }
@@ -166,6 +223,7 @@
         request.getDepartList(function (response) {
           console.log('depart-person获取的部门列表：' + JSON.stringify(response))
           com.childrenTree = com.getChildrenTree(response)
+          com.parentTree = com.getParentsTree(response)
           com.getCurDepartInfo()
         })
       },
@@ -228,6 +286,7 @@
         if (!nodes || nodes.length === 0) {
           nodes = this.nodes
         }
+        nodes = this.getChildrenList(nodes)
         nodes.sort(function (a, b) {
           return a.value - b.value
         })
@@ -236,7 +295,6 @@
           roots = []
         for (let i = 0; i < nodes.length; i++) {
           node = nodes[i]
-
           map[node.value] = i // use map to look-up the parents
           roots.push(node)
           if (node.parentvalue > 0) {
@@ -246,6 +304,29 @@
               nodes[i].parentDepart = nodes[map[node.parentvalue]]
             }
           }
+        }
+        console.log('重拍数组后的数据：' + JSON.stringify(roots))
+        return roots
+      },
+      getChildrenList: function () {
+        if (typeof (nodes) === 'undefined' || nodes.length === 0) {
+          return []
+        }
+        nodes.sort(function (a, b) {
+          return a.value - b.value
+        })
+        let map = {},
+          node, roots = []
+        for (let i = 0; i < nodes.length; i++) {
+          node = nodes[i]
+          node.departList = []
+          map[node.value] = i // use map to look-up the parents
+          if (node.parentvalue === 1) {
+            nodes[map[-1]].departList.push(node)
+          } else {
+            nodes[map[node.parentvalue]].departList.push(node)
+          }
+          roots.push(node)
         }
         console.log('重拍数组后的数据：' + JSON.stringify(roots))
         return roots
