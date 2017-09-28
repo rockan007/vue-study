@@ -1,6 +1,10 @@
 <!--文件选择组件-->
 <template>
   <div class='weui-uploader'>
+    <div class="weui-uploader__hd">
+      <p class="weui-uploader__title">图片上传</p>
+      <div class="weui-uploader__info">{{showImages.length}}/9</div>
+    </div>
     <div class='weui-uploader__bd'>
       <ul class='weui-uploader__files' id="uploaderFiles">
         <li v-for="(image,index) in showImages" class='weui-uploader__file'
