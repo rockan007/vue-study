@@ -58,9 +58,6 @@
         this.requireAllDepartList()
       }
     },
-    beforeRouteLeave: function () {
-      this.setSessionStorage()
-    },
     methods: {
       setSessionStorage: function () {
         storage.setSessionStorage(consts.KEY_DEPARTS_PARENTS_TREE, this.childrenTree)
@@ -71,21 +68,24 @@
        * @param {e} event 事件
        */
       togglePerson: function (person, event) {
+        console.log('***togglePerson***')
         let isAdd = event.target.checked
-        storage.toggleVlaueInSessionMap(consts.KEY_CHOOSE_PERSONS, person.id, person.name, isAdd)
-        this.$emit('chosePersons', storage.getSessionMap(consts.KEY_CHOOSE_DEPARTS))
+        storage.toggleValueInSessionMap(consts.KEY_CHOOSE_PERSONS, person.userid, person.name, isAdd)
+        this.$emit('chosePersons', storage.getSessionMap(consts.KEY_CHOOSE_PERSONS))
       },
 
       setPersonListStatus: function () {
+        console.log('****setPersonListStatus*****')
         let chosePersonMap = storage.getSessionMap(consts.KEY_CHOOSE_PERSONS)
         for (let person of this.curDepartInfo.personList) {
-          person.isChecked = chosePersonMap.has(person.id)
+          person.isChecked = chosePersonMap.has(person.userid)
         }
       },
       /**
        * 获取所有部门列表
        */
       requireAllDepartList: function () {
+        console.log('****获取所有部门列表****')
         let com = this
         com.isLoading = true
         //如果有数据
@@ -114,9 +114,11 @@
             com.setPersonListStatus()
             com.isLoading = false
             console.log('getCurDepartPersons获取的本部门数据：' + JSON.stringify(com.curDepartInfo))
+            com.setSessionStorage()
           })
         } else {
           com.isLoading = false
+          com.setSessionStorage()
         }
       },
       /**
@@ -124,9 +126,7 @@
        */
       getCurDepartInfo: function () {
         let pathArr = this.path.split('-')
-        storage.toggleVlaueInSessionMap(consts.KEY_DEPART_POSITION, this.departId, pathArr.length, true)
         console.log('本部门的路径：' + pathArr)
-//        console.log('返回的值：' + JSON.stringify(this.getNodeInTree(this.childrenTree, pathArr)))
         this.curDepartInfo = this.getNodeInTree(this.childrenTree, pathArr)
         console.log('获取的本部门信息：' + JSON.stringify(this.curDepartInfo))
         this.getCurDepartPersons()
@@ -142,7 +142,7 @@
           console.log('根据路径获取的node节点：' + JSON.stringify(tree[pathArr[0]]))
           return tree[pathArr[0]]
         } else {
-          this.getNodeInTree(tree[pathArr[0]].departList, pathArr.splice(0, 1))
+          return this.getNodeInTree(tree[pathArr[0]].departList, pathArr.slice(1))
         }
       },
       /**

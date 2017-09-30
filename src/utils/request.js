@@ -72,21 +72,15 @@ export default {
    * @param {Object} users 用户
    * @param {Object} dataInfo 发送的数据信息
    */
-  postMessage: function (users, dataInfo, callback) {
-    let userids = users.map(function (user) {
-      return user.userid
-    })
-    let usernames = users.map(function (user) {
-      return user.name
-    })
+  postMessage: function (users,departs, dataInfo, callback) {
     let comData = {
       cmd: 'msg',
-      touser: userids.join('|'),
-      toparty: '',
+      touser: Array.from(users.keys()) .join('|'),
+      toparty: Array.from(departs.keys()).join('|'),
       totag: '',
       safe: 0,
-      tousername: usernames.join('|'),
-      topartyname: '',
+      tousername: Array.from(users.values()).join('|'),
+      topartyname: Array.from(departs.values()).join('|'),
       totagname: ''
     }
     $.extend(comData, dataInfo)

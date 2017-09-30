@@ -191,8 +191,8 @@
         }
         this.publishing = true
         console.log('&&&&&com-publish&&&&&发布按钮的点击事件')
-        if (this.chosePersons.length === 0) {
-          this.toastContent = '请选择接收人'
+        if (this.chosePersons.size === 0 && this.choseDeparts.size === 0) {
+          this.toastContent = '请选择接收人员或部门'
           this.isShowToast = true
           this.publishing = false
           return
@@ -300,7 +300,8 @@
       },
       publish: function (content) { //发布
         let com = this
-        request.postMessage(this.chosePersons, content, function (data) {
+        console.log('当前发布信息内容：' + JSON.stringify(content))
+        request.postMessage(this.chosePersons, this.choseDeparts, content, function (data) {
           console.log('发送消息，返回的值：' + JSON.stringify(data))
           console.log(data)
           com.publishing = false

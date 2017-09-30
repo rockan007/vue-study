@@ -51,10 +51,12 @@ export default {
    * @param value 存储的值
    */
   setSessionStorage: function (key, value) {
+    console.log('***setSessionStorage****')
     if (typeof (value) === 'undefined') {
       console.log('要存储的值is undefined')
       return
     }
+    console.log('要存储的值：' + JSON.stringify(value))
     sessionStorage.setItem(key, JSON.stringify(value))
   },
   isExistInSessionArray: function (key, value) {
@@ -85,6 +87,9 @@ export default {
     }
     return set
   },
+  setSessionSet: function (storageKey, set) {
+    this.setSessionStorage(storageKey, Array.from(set))
+  },
   /**
    * 获取存储在本地的localStorage
    * @param {String} key 数组对应的key值
@@ -92,6 +97,7 @@ export default {
   getSessionSet: function (key) {
     let set
     if (sessionStorage.getItem(key)) {
+      console.log("getSessionSet:"+sessionStorage.getItem(key))
       set = new Set(JSON.parse(sessionStorage.getItem(key)))
     } else {
       set = new Set()
@@ -112,25 +118,31 @@ export default {
   },
   getSessionMapValue: function (storageKey, key) {
     let map = this.getSessionMap(storageKey)
-    console.log('***getSessionMapValue***获取的部门已选择的人的数组' + JSON.stringify(map))
+    console.log('***getSessionMapValue***' + JSON.stringify(map))
     if (map.has(key)) {
       return map.get(key)
     }
     return null
   },
-  toggleVlaueInSessionMap: function (storageKey, key, value, isAdd) {
+  toggleValueInSessionMap: function (storageKey, key, value, isAdd) {
+    console.log('***toggleValueInSessionMap***')
     let map = this.getSessionMap(storageKey)
-
+    this.toggleValueInMap(map, key, value, isAdd)
+    console.log('处理后的map' + JSON.stringify([...map]))
+    this.setSessionMap(storageKey, map)
+  },
+  setSessionMap: function (storageKey, map) {
+    console.log('***setSessionMap***')
+    this.setSessionStorage(storageKey, [...map])
   },
   toggleValueInMap: function (map, key, value, isAdd) {
+    console.log('***toggleValueInMap***')
     if (isAdd) {
       map.set(key, value)
     } else {
-      if (map.hasKey(key)) {
+      if (map.has(key)) {
         map.delete(key)
       }
     }
-    sessionStorage.setItem(storageKey, JSON.stringify([...map]))
-    console.log('****setSessionMapValue***放置的本地值：' + JSON.stringify(map))
   }
 }

@@ -2,8 +2,8 @@
   <div>
     <router-view v-on:chosePersons="getChosePersons"
                  v-on:choseDeparts="getChoseDeparts"
-                 v-bind:class="[{'margin-bottom50':isBottomMargin}]"></router-view>
-    <div v-if="chosePersons.length>0" class="weui-flex fixed_bottom">
+                 v-bind:class="[{'margin-bottom50':isBottomMargin()}]"></router-view>
+    <div v-if="isBottomMargin()" class="weui-flex fixed_bottom">
       <div class="weui-flex__item" v-on:click="routerToPub">
         <a class="weui-btn weui-btn_default">
           取消
@@ -19,7 +19,6 @@
 </template>
 <script>
   import consts from '../mock-data/consts'
-  import router from '../router/index'
   import storage from '../utils/storage'
 
   export default {
@@ -38,8 +37,10 @@
       console.log('choose-container当前路由参数：' + JSON.stringify(this.$route.params))
       if (this.$route.name === 'depart-person') {
         this.chooseType = 0
+        this.choseSize=this.chosePersons.size
       } else {
         this.chooseType = 1
+        this.choseSize=this.choseDeparts.size
       }
     },
     watch: {
@@ -60,13 +61,9 @@
         this.routerToPub()
       },
       routerToPub: function () {
-        let pos = this.getPosition()
-        console.log('@@@@@com-persen@@@@@导向发布页面')
-        router.go(-parseInt(pos))
-      },
-      getPosition: function () {
-        let id = parseInt(this.$route.params.id)
-        return storage.getSessionMapValue(consts.KEY_DEPART_POSITION, id)
+        let pos = this.$route.params.path.split('-').length
+        console.log('@@@@@com-persen@@@@@导向发布页面position' + pos)
+        this.$router.go(-parseInt(pos))
       },
       getChosePersons: function (persons) {
         console.log('choose-container获取的已选人员Map：' + JSON.stringify(persons))
