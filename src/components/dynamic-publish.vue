@@ -264,7 +264,7 @@
             }
             break
           case 3://
-            publishContent = this.uploadFile
+
             break
           case 4://语音
             publishContent = $.extend({
@@ -309,7 +309,6 @@
             com.toastContent = '发布成功'
             com.isShowToast = true
             com.resetData()
-            sessionStorage.clear()
             com.$emit('pubSuccess')
           } else {
             com.toastContent = '发布失败:' + data.RspTxt
@@ -321,8 +320,7 @@
       resetData: function () {
         this.title = ''
         this.description = ''
-        this.uploadFile = {}
-        this.$emit('uploadFiles', [])
+        this.$emit('clearData')
       },
       getPubStyle: function () { //發佈的類型
         for (let i in consts.MSGSTYLES) {

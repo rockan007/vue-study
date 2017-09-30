@@ -8,6 +8,7 @@
                    v-on:choseDeparts="getChoseDeparts"
                    v-bind:chosePersons="chosePersons"
                    v-bind:choseDeparts="choseDeparts"
+                   v-on:clearData="clearData"
                    v-on:dealtImages="getDealtImages"></router-view>
     </keep-alive>
   </div>
@@ -29,6 +30,12 @@
       }
     },
     methods: {
+      clearData: function () {
+        this.chosePersons = new Map()
+        this.choseDeparts = new Map()
+        this.uploadFiles = []
+        sessionStorage.clear()
+      },
       //获取选择的人
       getChosePerson: function (persons) {
         this.chosePersons = persons
