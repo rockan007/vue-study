@@ -2,7 +2,7 @@
  * 图片压缩和上传
  */
 import consts from '../mock-data/consts'
-import $ from 'jquery'
+import request from './request'
 
 export default {
   uploadImg: function (file, maxSize, callback) {
@@ -36,24 +36,7 @@ export default {
   },
   postFile: function (formData, callback) {
     console.log('开始上传')
-    $.ajax({
-      url: consts.UPLOADURL,
-      type: 'POST',
-      cache: false,
-      contentType: false,
-      processData: false,
-      data: formData,
-      dataType: 'json',
-      success: function (response) {
-        console.log('上传文件获取的回调：' + JSON.stringify(response))
-        callback(response)
-      },
-      error: function (errRes) {
-        callback(errRes)
-        console.log('发生未知错误：' + JSON.stringify(errRes))
-        console.log(errRes)
-      }
-    })
+    request.postData(consts.UPLOADURL,formData,callback);
   },
   getCanvasDataUrl: function (img, suitableSize) {
     console.log('*****重绘图片的宽高******')

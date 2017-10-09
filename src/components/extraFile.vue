@@ -42,7 +42,7 @@
     },
     beforeRouteLeave (to, from, next) {
       //在路由离开前，清空value值
-      $('#uploaderInput').value = 'undefined'
+      document.getElementById('uploaderInput').value = 'undefined'
     },
     data () {
       return {
@@ -195,7 +195,6 @@
           console.log('已上傳的文件！' + JSON.stringify(response))
           if (response.RspCode === '0000') {
             callback(index, response.RspData)
-//            com.$emit('uploadFile', response.RspData)
           } else {
             com.isUploading = false
             com.$emit('isUploading', com.isUploading)

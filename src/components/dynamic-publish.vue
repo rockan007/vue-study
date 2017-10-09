@@ -112,7 +112,8 @@
           },
           publishing: false,
           isLoading: false,
-          chooseType: 0//0：人员 1部门
+          chooseType: 0,//0：人员 1部门
+          choseDepartsPersons: new Map()
         }
       },
       showToast: function (content) {
@@ -122,55 +123,6 @@
       },
       isUploading: function (isUp) {
         this.isLoading = isUp
-      },
-      setElementShow: function (type) {
-        switch (type) {
-          case 0://文字
-            this.isShow = {
-              title: false,
-              description: true,
-              extra: false
-            }
-            break
-          case 1://文字卡片
-            this.isShow = {
-              title: true,
-              description: true,
-              extra: true
-            }
-            break
-          case 2://图文
-            this.isShow = {
-              title: true,
-              description: true,
-              extra: true
-            }
-            break
-          case 3://图片
-          case 4://语音
-            this.isShow = {
-              title: false,
-              description: false,
-              extra: true
-            }
-            break
-          case 5://视频
-            this.isShow = {
-              title: true,
-              description: true,
-              extra: true
-            }
-            break
-          case 6://文件
-            this.isShow = {
-              title: false,
-              description: false,
-              extra: true
-            }
-            break
-          default:
-            break
-        }
       },
       getUploadFiles: function (files) {
         console.log('dynamic-publish.vue获取的文件信息:' + JSON.stringify(files))
@@ -230,10 +182,6 @@
         }
         return true
       },
-
-      getMsgType: function (event) {
-        this.msgType = parseInt(event.target.value)
-      },
       getPublishContent: function () {
         let publishContent
         switch (this.msgType) {
@@ -267,7 +215,7 @@
 
             break
           case 4://语音
-            publishContent = $.extend({
+            publishContent = Object.assign({
               voice: {
                 media_id: ''
               }
@@ -275,7 +223,7 @@
             break
 
           case 5://视频
-            publishContent = $.extend({
+            publishContent = Object.assign({
               video: {
                 media_id: '',
                 title: this.title,
@@ -284,7 +232,7 @@
             }, this.uploadFile)
             break
           case 6://文件
-            publishContent = $.extend({
+            publishContent = Object.assign({
               file: {
                 media_id: ''
               }
@@ -299,23 +247,68 @@
         this.publish(publishContent)
       },
       publish: function (content) { //发布
+        console.log('****publish****')
         let com = this
-        console.log('当前发布信息内容：' + JSON.stringify(content))
-        request.postMessage(this.chosePersons, this.choseDeparts, content, function (data) {
-          console.log('发送消息，返回的值：' + JSON.stringify(data))
-          console.log(data)
-          com.publishing = false
-          if (data.RspCode === '0000') {
-            com.toastContent = '发布成功'
+        com.getDepartsPersons(function () {
+          if (com.chosePersons.size === 0) {
+            com.toastContent = '已选部门没有人员，清重新选择'
             com.isShowToast = true
-            com.resetData()
-            com.$emit('pubSuccess')
-          } else {
-            com.toastContent = '发布失败:' + data.RspTxt
-            com.isShowToast = true
+            return
           }
+          if (com.chosePersons.length > 1000) {
+            com.toastContent = '选择部门人员数大于1000，无法发布'
+            com.isShowToast = true
+            return
+          }
+          console.log('当前发布信息内容：' + JSON.stringify(content))
+          request.postMessage(com.chosePersons, com.choseDeparts, content, function (data) {
+            console.log('发送消息，返回的值：' + JSON.stringify(data))
+            console.log(data)
+            com.publishing = false
+            if (data.RspCode === '0000') {
+              com.toastContent = '发布成功'
+              com.isShowToast = true
+              com.resetData()
+              com.$emit('pubSuccess')
+            } else {
+              com.toastContent = '发布失败:' + data.RspTxt
+              com.isShowToast = true
+            }
+          })
         })
-
+      },
+      getDepartsPersons: function (callback) {
+        console.log('***getDepartsPersons***')
+        let com = this
+        let departsArr = Array.from(com.choseDeparts.keys())
+        console.log('获取的部门数组：' + JSON.stringify(departsArr))
+        if (departsArr.length > 0) {
+          let count = 0
+          for (let departId of departsArr) {
+            this.getDepartPersons(departId, function () {
+              count++
+              console.log('此时的循环次数：' + count)
+              if (count === departsArr.length) {
+                console.log('获取的部门人员信息：' + JSON.stringify(com.chosePersons))
+                callback()
+              }
+            })
+          }
+        } else {
+          console.log('获取的部门人员信息：' + JSON.stringify(com.chosePersons))
+          callback()
+        }
+      },
+      getDepartPersons: function (departId, callback) {
+        console.log('****getDepartPersons*****')
+        let com = this
+        request.getDepartPersons(departId, 1, 0, function (response) {
+          console.log('获取的人员详情：' + JSON.stringify(response))
+          for (let person of response) {
+            com.chosePersons.set(person.userid, person.name)
+          }
+          callback()
+        })
       },
       resetData: function () {
         this.title = ''

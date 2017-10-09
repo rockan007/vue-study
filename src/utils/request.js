@@ -1,10 +1,27 @@
-import consts from '../mock-data/consts';
+import consts from '../mock-data/consts'
+
 export default {
-  getData: function (url, data, callback) {
-    $.getJSON(url, data, callback)
-  },
+  /**
+   * 发送数据
+   * @param url  接口地址
+   * @param data 发送的数据
+   * @param callback 回调
+   */
   postData: function (url, data, callback) {
-    $.post(url, data, callback)
+    let request = new XMLHttpRequest()
+    request.responseType = 'json'
+    request.onreadystatechange = function () {
+      console.log('此时的状态：' + request.readyState)
+      console.log('此时的数据：' + JSON.stringify(request.response))
+      if (request.readyState === 4) {
+        if (request.response === null) {
+          return
+        }
+        callback(request.response)
+      }
+    }
+    request.open('POST', url, true)
+    request.send(data)
   },
   //获取部门列表
   getDepartList: function (callback) {
@@ -20,9 +37,9 @@ export default {
   },
   /**
    *
-   * @param id
-   * @param colv
-   * @param callcol
+   * @param id  部门id
+   * @param colv 0 1  是否递归
+   * @param callcol 0 1 是否获取详情
    * @param callback
    */
   getDepartPersons: function (id, colv, callcol, callback) {
@@ -68,14 +85,16 @@ export default {
     })
   },
   /**
-   * 发送消息
-   * @param {Object} users 用户
-   * @param {Object} dataInfo 发送的数据信息
+   * 发送通知接口
+   * @param users 用户
+   * @param departs 部门
+   * @param dataInfo 数据
+   * @param callback 回调
    */
-  postMessage: function (users,departs, dataInfo, callback) {
+  postMessage: function (users, departs, dataInfo, callback) {
     let comData = {
       cmd: 'msg',
-      touser: Array.from(users.keys()) .join('|'),
+      touser: Array.from(users.keys()).join('|'),
       toparty: Array.from(departs.keys()).join('|'),
       totag: '',
       safe: 0,
@@ -83,7 +102,7 @@ export default {
       topartyname: Array.from(departs.values()).join('|'),
       totagname: ''
     }
-    $.extend(comData, dataInfo)
+    Object.assign(comData, dataInfo)
     console.log('发布信息传递的值：' + JSON.stringify(comData))
     this.postData(consts.MAINURL, JSON.stringify(comData), function (response) {
       console.log('发布消息返回的值：' + JSON.stringify(response))
