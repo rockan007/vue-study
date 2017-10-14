@@ -4,19 +4,26 @@
     <div class="weui-cells">
       <div class="weui-cell">
         <div class="weui-cell__bd">
-          <input class="weui-input" v-model.trim="title" type="text" placeholder="在此输入通知标题"/>
+          <textarea class="weui-textarea title" maxlength="60" v-model.trim="title" placeholder="在此输入通知标题,最多60字">
+          </textarea>
         </div>
       </div>
       <div class="weui-cell">
         <div class="weui-cell__bd">
-          <textarea style="width: 100%" rows="8" v-model.trim="description"
-                    class="weui-textarea"
-                    placeholder="在此输入通知内容"></textarea>
+          <textarea v-model.trim="description" maxlength="250"
+                    class="weui-textarea description"
+                    placeholder="在此输入通知内容,最多250字"></textarea>
+
+        </div>
+      </div>
+      <div class="weui-cell">
+        <div class="weui-cell__bd">
           <extra-file v-bind:msgType="msgType" v-on:showToast="showToast"
                       v-bind:uploadFiles="uploadFiles" v-on:uploadFiles="getUploadFiles"
                       v-on:isUploading="isUploading"></extra-file>
         </div>
       </div>
+      <div style="width: 100%;height: 10px;background-color: #f2f2f2"></div>
       <div class="weui-cell weui-cell_access" v-on:click="routeToPersons(0)">
         <div class="weui-cell__bd">
           通知人员选择
@@ -33,14 +40,14 @@
           {{choseDeparts.size > 99 ? "99+" : choseDeparts.size}}
         </div>
       </div>
-      <div class="weui-cell weui-cell_switch">
-        <div class="weui-cell__bd">
-          是否短信同步
-        </div>
-        <div class="weui-cell__ft">
-          <input class="weui-switch" type="checkbox"/>
-        </div>
-      </div>
+      <!--<div class="weui-cell weui-cell_switch">-->
+      <!--<div class="weui-cell__bd">-->
+      <!--是否短信同步-->
+      <!--</div>-->
+      <!--<div class="weui-cell__ft">-->
+      <!--<input class="weui-switch" type="checkbox"/>-->
+      <!--</div>-->
+      <!--</div>-->
     </div>
     <a class="weui-btn weui-btn_primary" v-on:click="publishMethod">发布</a>
     <toast v-bind:isShow="isShowToast" v-bind:isLoading="isLoading" v-bind:toastContent="toastContent"
@@ -361,11 +368,33 @@
 
   .weui-btn_primary {
     background-color: #46bdff;
+    margin: 0 2.5%;
   }
 
   .weui-btn_primary:not(.weui-btn_disabled):active {
     color: hsla(0, 0%, 100%, .6);
     background-color: #46bdff;
+
+  }
+
+  .weui-input, .weui-textarea {
+    font-size: 15px;
+  }
+
+  .weui-textarea.description {
+    height: 135px;
+  }
+
+  .weui-cells {
+    font-size: 15px;
+  }
+
+  .weui-textarea.title {
+    height: 88px;
+  }
+
+  .weui-cells:after {
+    border-bottom: 0;
   }
 </style>
 

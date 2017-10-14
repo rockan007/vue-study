@@ -1,6 +1,6 @@
 <!--App首页-->
 <template>
-  <div id="app">
+  <div id="app" style="background-color: white">
     <keep-alive include="dynamic-publish">
       <router-view v-bind:uploadFiles="uploadFiles"
                    v-on:uploadFiles="getUploadFiles"

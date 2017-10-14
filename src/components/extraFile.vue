@@ -138,6 +138,9 @@
             return
           }
           let file = event.target.files[0]
+          if (file.type === '') {
+            return
+          }
           if (!this.isCurType(file)) {
             this.$emit('showToast', '所选文件类型错误')
             return
@@ -147,6 +150,7 @@
             return
           }
           this.uploadFile(files)
+          event.target.value = ''
         }
       },
       uploadFile: function (files) {
@@ -279,5 +283,13 @@
     -ms-flex-align: center;
     -webkit-align-items: center;
     align-items: center;
+  }
+  .weui-uploader__input-box{
+    width: 66px;
+    height: 66px;
+  }
+  .weui-uploader__file{
+    width: 69px;
+    height: 69px;
   }
 </style>

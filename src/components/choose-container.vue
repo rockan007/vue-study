@@ -4,15 +4,20 @@
                  v-on:choseDeparts="getChoseDeparts"
                  v-bind:class="[{'margin-bottom50':isBottomMargin()}]"></router-view>
     <div v-if="isBottomMargin()" class="weui-flex fixed_bottom">
-      <div class="weui-flex__item" v-on:click="routerToPub">
-        <a class="weui-btn weui-btn_default">
-          取消
-        </a>
+      <div class="weui-flex__item">
+        <div class="bottom_button" style="float: right;" v-on:click="routerToPub">
+          <a class="weui-btn weui-btn_default cancel">
+            取消
+          </a>
+        </div>
       </div>
-      <div class="weui-flex__item" v-on:click="chooseDepartsPersons">
-        <a class="weui-btn weui-btn_primary">
-          确定({{choseSize}})
-        </a>
+      <div style="width: 15px"></div>
+      <div class="weui-flex__item">
+        <div class="bottom_button" v-on:click="chooseDepartsPersons">
+          <a class="weui-btn weui-btn_primary confirm">
+            确定({{choseSize}})
+          </a>
+        </div>
       </div>
     </div>
   </div>
@@ -37,10 +42,10 @@
       console.log('choose-container当前路由参数：' + JSON.stringify(this.$route.params))
       if (this.$route.name === 'depart-person') {
         this.chooseType = 0
-        this.choseSize=this.chosePersons.size
+        this.choseSize = this.chosePersons.size
       } else {
         this.chooseType = 1
-        this.choseSize=this.choseDeparts.size
+        this.choseSize = this.choseDeparts.size
       }
     },
     watch: {
@@ -96,18 +101,31 @@
     right: 0;
     background-color: white;
     z-index: 99;
+    height: 55px;
+    border-top: solid 1px #f2f2f2;
+    padding-top: 7px;
   }
 
   .margin-bottom50 {
-    margin-bottom: 50px;
-  }
-
-  .weui-btn_primary {
-    background-color: #46bdff;
+    margin-bottom: 55px;
   }
 
   .weui-btn_primary:not(.weui-btn_disabled):active {
     color: hsla(0, 0%, 100%, .6);
-    background-color: #46bdff;
+    background-color: #47bdff;
+  }
+
+  .weui-btn_default.cancel {
+    background-color: #f2f2f2;
+    border-color: #e4e4e4;
+  }
+
+  .weui-btn_primary.confirm {
+    background-color: #47bdff;
+  }
+
+  .bottom_button {
+    width: 155px;
+    height: 40px;
   }
 </style>

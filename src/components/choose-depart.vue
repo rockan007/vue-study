@@ -373,7 +373,7 @@
   .weui-icon-checked:before {
     content: '\EA01';
     color: #C9C9C9;
-    font-size: 23px;
+    font-size: 17px;
     display: block;
   }
 
@@ -381,10 +381,14 @@
     display: inline-block;
     content: '\EA06';
     color: #46bdff;
-    font-size: 23px;
+    font-size: 17px;
   }
 
   .weui-cells {
     margin-top: 0;
+  }
+
+  .weui-cell__bd > p {
+    font-size: 15px;
   }
 </style>
