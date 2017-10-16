@@ -1,6 +1,6 @@
-import consts from '../mock-data/consts'
+import { consts } from '../mock-data/consts'
 
-export default {
+export let request = {
   /**
    * 发送数据
    * @param url  接口地址

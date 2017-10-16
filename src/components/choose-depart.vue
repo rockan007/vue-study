@@ -19,9 +19,9 @@
   </div>
 </template>
 <script>
-  import consts from '../mock-data/consts'
-  import storage from '../utils/storage'
-  import request from '../utils/request'
+  import { consts } from '../mock-data/consts'
+  import { storage } from '../utils/storage'
+  import { request } from '../utils/request'
   import router from '../router/index'
 
   export default {

@@ -3,7 +3,7 @@
 import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
-import 'weui/dist/style/weui.min.css'
+import './assets/css/weui.min.css'
 import './assets/css/weui-extra.min.css'
 
 /* eslint-disable no-new */

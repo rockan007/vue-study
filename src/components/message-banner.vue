@@ -8,7 +8,7 @@
   </div>
 </template>
 <script>
-  import consts from '../mock-data/consts'
+  import { consts } from '../mock-data/consts'
 
   export default {
     name: 'msg-banner',
@@ -38,6 +38,6 @@
 
   .active {
     border-bottom: 2px blue solid;
-    color:blue;
+    color: blue;
   }
 </style>

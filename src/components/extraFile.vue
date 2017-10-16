@@ -24,7 +24,7 @@
 </template>
 <script>
   import router from '../router/index'
-  import compress from '../utils/compress'
+  import { compress } from '../utils/compress'
 
   export default {
     name: 'extra-file',
@@ -284,11 +284,13 @@
     -webkit-align-items: center;
     align-items: center;
   }
-  .weui-uploader__input-box{
+
+  .weui-uploader__input-box {
     width: 66px;
     height: 66px;
   }
-  .weui-uploader__file{
+
+  .weui-uploader__file {
     width: 69px;
     height: 69px;
   }

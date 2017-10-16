@@ -1,10 +1,10 @@
 /**
  * 图片压缩和上传
  */
-import consts from '../mock-data/consts'
-import request from './request'
+import { consts } from '../mock-data/consts'
+import { request } from './request'
 
-export default {
+export let compress = {
   uploadImg: function (file, maxSize, callback) {
     maxSize = maxSize * 1024 * 1024
     console.log('要处理的图片地址：' + file.name)
@@ -36,7 +36,7 @@ export default {
   },
   postFile: function (formData, callback) {
     console.log('开始上传')
-    request.postData(consts.UPLOADURL,formData,callback);
+    request.postData(consts.UPLOADURL, formData, callback)
   },
   getCanvasDataUrl: function (img, suitableSize) {
     console.log('*****重绘图片的宽高******')

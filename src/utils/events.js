@@ -1,4 +1,4 @@
-export default {
+export let events= {
   /**
    * 在本地储存数组中 添加 或删除 value
    * @param {Object} key 键值

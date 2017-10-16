@@ -1,4 +1,4 @@
-export default {
+export let storage = {
   /**
    * 在本地储存数组中 添加 或删除 value
    * @param {Object} key 键值
@@ -97,7 +97,7 @@ export default {
   getSessionSet: function (key) {
     let set
     if (sessionStorage.getItem(key)) {
-      console.log("getSessionSet:"+sessionStorage.getItem(key))
+      console.log('getSessionSet:' + sessionStorage.getItem(key))
       set = new Set(JSON.parse(sessionStorage.getItem(key)))
     } else {
       set = new Set()

@@ -56,9 +56,9 @@
 </template>
 <script>
   import extraFile from './extraFile.vue'
-  import consts from '../mock-data/consts'
+  import { consts } from '../mock-data/consts'
   import router from '../router/index'
-  import request from '../utils/request'
+  import { request } from '../utils/request'
   import toast from './toast.vue'
 
   export default {
