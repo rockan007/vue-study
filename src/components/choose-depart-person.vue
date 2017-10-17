@@ -1,30 +1,36 @@
 <template>
   <div v-if="isLoading">loading</div>
-  <div v-else class="weui-cells">
-    <template>
-      <!--人员选项-->
-      <label v-for="(item,index) in curDepartInfo.personList" v-bind:for="item.userid"
-             class="weui-cell weui-check__label">
-        <div class="weui-cell__hd">
-          <input type="checkbox" class="weui-check" v-bind:id="item.userid" v-bind:value="item.userid"
-                 v-bind:checked="isAllChecked||item.isChecked"
-                 v-on:change="togglePerson(item,$event)">
-          <i class="weui-icon-checked"></i>
-        </div>
-        <div class="weui-cell__bd">
-          <p>{{item.name}}</p>
-        </div>
-      </label>
-      <!--部门选项-->
-      <a v-for="(item,index) in curDepartInfo.departList" class="weui-cell weui-cell_access"
-         v-on:click="routerToChild(item,index)">
-        <div class="weui-cell__bd">
-          <p>{{item.title}}</p>
-        </div>
-        <div class="weui-cell__ft"></div>
-      </a>
-    </template>
-  </div>
+  <template v-else>
+    <div v-if="curDepartInfo.departList.length>0||curDepartInfo.personList.length>0" class="weui-cells">
+      <template>
+        <!--人员选项-->
+        <label v-for="(item,index) in curDepartInfo.personList" v-bind:for="item.userid"
+               class="weui-cell weui-check__label">
+          <div class="weui-cell__hd">
+            <input type="checkbox" class="weui-check" v-bind:id="item.userid" v-bind:value="item.userid"
+                   v-bind:checked="isAllChecked||item.isChecked"
+                   v-on:change="togglePerson(item,$event)">
+            <i class="weui-icon-checked"></i>
+          </div>
+          <div class="weui-cell__bd">
+            <p>{{item.name}}</p>
+          </div>
+        </label>
+        <!--部门选项-->
+        <a v-for="(item,index) in curDepartInfo.departList" class="weui-cell weui-cell_access"
+           v-on:click="routerToChild(item,index)">
+          <div class="weui-cell__bd">
+            <p>{{item.title}}</p>
+          </div>
+          <div class="weui-cell__ft"></div>
+        </a>
+      </template>
+    </div>
+    <div class="page" v-else>
+      <img src="../assets/images/none.png" style="width: 50%;padding: 25% 25% 10%;height: auto;"/>
+      <p style="width: 100%;text-align: center;color: darkgray">此部门暂无子部门和人员！</p>
+    </div>
+  </template>
 </template>
 <script>
   import { consts } from '../mock-data/consts'

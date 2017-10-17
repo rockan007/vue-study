@@ -8,10 +8,10 @@ function resolve (dir) {
 }
 
 module.exports = {
-  entry: {
+  entry: {//程序入口
     app: './src/main.js'
   },
-  output: {
+  output: {//出口
     path: config.build.assetsRoot,
     filename: '[name].js',
     publicPath: process.env.NODE_ENV === 'production'
@@ -26,7 +26,7 @@ module.exports = {
     },
     symlinks: false
   },
-  module: {
+  module: {//loader
     rules: [
       {
         test: /\.vue$/,
