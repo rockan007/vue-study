@@ -1,6 +1,6 @@
 <template>
   <div v-if="isLoading">loading</div>
-  <template v-else>
+  <div v-else>
     <div v-if="curDepartInfo.departList.length>0||curDepartInfo.personList.length>0" class="weui-cells">
       <template>
         <!--人员选项-->
@@ -27,10 +27,10 @@
       </template>
     </div>
     <div class="page" v-else>
-      <img src="../assets/images/none.png" style="width: 50%;padding: 25% 25% 10%;height: auto;"/>
+      <img src="../assets/images/none.png" style="width: 50%;padding: 25% 25% 10%;height: auto;z-index: 800;"/>
       <p style="width: 100%;text-align: center;color: darkgray">此部门暂无子部门和人员！</p>
     </div>
-  </template>
+  </div>
 </template>
 <script>
   import { consts } from '../mock-data/consts'
@@ -40,6 +40,14 @@
 
   export default {
     name: 'depart-person',
+    props:{
+      chosePersons: {
+        type: Map,
+        default: function () {
+          return new Map()
+        }
+      },
+    },
     data: function () {
       return {
         curDepartInfo: {
@@ -227,5 +235,8 @@
 
   .weui-cell__bd > p {
     font-size: 15px;
+  }
+  .page{
+    opacity: 1;
   }
 </style>

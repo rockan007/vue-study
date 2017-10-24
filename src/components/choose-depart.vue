@@ -1,21 +1,27 @@
 <template>
   <div v-if="isLoading">loading</div>
-  <div v-else class="weui-cells">
-    <!--部门选项-->
-    <a v-for="(item,index) in curDepartInfo.departList" class="weui-cell weui-cell_access">
-      <div class="weui-cell__hd">
-        <label v-bind:for="item.value">
-          <input type="checkbox" class="" v-bind:id="item.value" v-bind:value="item.value"
-                 v-bind:checked="item.isChecked"
-                 v-on:change="toggleDepart(item,$event)"/>
-          <i class="weui-icon-checked"></i>
-        </label>
-      </div>
-      <div class="weui-cell__bd" v-on:click="routerToChild(item,index)">
-        <p>{{item.title}}</p>
-      </div>
-      <div class="weui-cell__ft" v-on:click="routerToChild(item,index)"></div>
-    </a>
+  <div v-else>
+    <div v-if="curDepartInfo.departList.length>0" class="weui-cells">
+      <!--部门选项-->
+      <a v-for="(item,index) in curDepartInfo.departList" class="weui-cell weui-cell_access">
+        <div class="weui-cell__hd">
+          <label v-bind:for="item.value">
+            <input type="checkbox" class="" v-bind:id="item.value" v-bind:value="item.value"
+                   v-bind:checked="item.isChecked"
+                   v-on:change="toggleDepart(item,$event)"/>
+            <i class="weui-icon-checked"></i>
+          </label>
+        </div>
+        <div class="weui-cell__bd" v-on:click="routerToChild(item,index)">
+          <p>{{item.title}}</p>
+        </div>
+        <div class="weui-cell__ft" v-on:click="routerToChild(item,index)"></div>
+      </a>
+    </div>
+    <div class="page" v-else>
+      <img src="../assets/images/none.png" style="width: 50%;padding: 25% 25% 10%;height: auto;z-index: 800;"/>
+      <p style="width: 100%;text-align: center;color: darkgray">此部门暂无子部门！</p>
+    </div>
   </div>
 </template>
 <script>
@@ -26,6 +32,8 @@
 
   export default {
     name: 'depart-person',
+    props:{
+    },
     data: function () {
       return {
         curDepartInfo: {
@@ -390,5 +398,8 @@
 
   .weui-cell__bd > p {
     font-size: 15px;
+  }
+  .page{
+    opacity: 1;
   }
 </style>

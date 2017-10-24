@@ -28,11 +28,24 @@
 
   export default {
     name: 'choose-container',
-    props: {},
+    props: {
+      chosePersons: {
+        type: Map,
+        default: function () {
+          return new Map()
+        }
+      },
+      choseDeparts: {
+        type: Map,
+        default: function () {
+          return new Map()
+        }
+      }
+    },
     data: function () {
       return {
-        chosePersons: storage.getSessionMap(consts.KEY_CHOOSE_PERSONS),
-        choseDeparts: storage.getSessionMap(consts.KEY_CHOOSE_DEPARTS),
+        selectedPersons: storage.getSessionMap(consts.KEY_CHOOSE_PERSONS),//选择的人员
+        selectedDeparts: storage.getSessionMap(consts.KEY_CHOOSE_DEPARTS),//选择的部门
         choseSize: 0,
         chooseType: 0//0:人员选择 1：部门选择
       }
@@ -42,26 +55,26 @@
       console.log('choose-container当前路由参数：' + JSON.stringify(this.$route.params))
       if (this.$route.name === 'depart-person') {
         this.chooseType = 0
-        this.choseSize = this.chosePersons.size
+        this.choseSize = this.selectedPersons.size
       } else {
         this.chooseType = 1
-        this.choseSize = this.choseDeparts.size
+        this.choseSize = this.selectedDeparts.size
       }
     },
     watch: {
-      chosePersons: function (newVal, oldVal) {
+      selectedPersons: function (newVal, oldVal) {
         this.choseSize = newVal.size
       },
-      choseDeparts: function (newVal, oldVal) {
+      selectedDeparts: function (newVal, oldVal) {
         this.choseSize = newVal.size
       }
     },
     methods: {
       chooseDepartsPersons: function () {
         if (this.chooseType === 0) {
-          this.$emit('chosePersons', this.chosePersons)
+          this.$emit('chosePersons', this.selectedPersons)
         } else {
-          this.$emit('choseDeparts', this.choseDeparts)
+          this.$emit('choseDeparts', this.selectedDeparts)
         }
         this.routerToPub()
       },
@@ -72,19 +85,25 @@
       },
       getChosePersons: function (persons) {
         console.log('choose-container获取的已选人员Map：' + JSON.stringify(persons))
-        this.chosePersons = persons
+        this.selectedPersons = persons
       },
       getChoseDeparts: function (departs) {
         console.log('choose-container获取的已选部门Map:' + JSON.stringify(departs))
-        this.choseDeparts = departs
+        this.selectedDeparts = departs
       },
       isBottomMargin: function () {
         if (this.chooseType === 0) {
           if (this.chosePersons.size > 0) {
             return true
           }
+          if (this.selectedPersons.size > 0) {
+            return true
+          }
         } else {
           if (this.choseDeparts.size > 0) {
+            return true
+          }
+          if (this.selectedDeparts.size > 0) {
             return true
           }
         }

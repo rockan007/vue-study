@@ -149,11 +149,10 @@
             this.$emit('showToast', this.toastContent)
             return
           }
-          this.uploadFile(files)
-          event.target.value = ''
+          this.uploadFile(files, event.target)
         }
       },
-      uploadFile: function (files) {
+      uploadFile: function (files, target) {
         let com = this
         com.isUploading = true
         this.$emit('isUploading', com.isUploading)
@@ -171,6 +170,7 @@
                   com.isUploading = false
                   com.$emit('isUploading', com.isUploading)
                   com.$emit('uploadFiles', upLoaded)
+                  target.value = ''
                 }
               })
             })

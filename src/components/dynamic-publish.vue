@@ -60,6 +60,7 @@
   import router from '../router/index'
   import { request } from '../utils/request'
   import toast from './toast.vue'
+  import { storage } from '../utils/storage'
 
   export default {
     name: 'dynamic-publish',
@@ -332,6 +333,11 @@
       },
       routeToPersons: function (type) {
         let name = type === 0 ? 'depart-person' : 'choose-depart'
+        if (type === 0) {
+          storage.setSessionMap(consts.KEY_CHOOSE_PERSONS, this.chosePersons)
+        }else{
+          storage.setSessionMap(consts.KEY_CHOOSE_PERSONS, this.chosePersons)
+        }
         router.push({
           name: name,
           params: {
@@ -390,7 +396,7 @@
   }
 
   .weui-textarea.title {
-    height: 88px;
+    height: 44px;
   }
 
   .weui-cells:after {

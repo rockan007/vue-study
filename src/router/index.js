@@ -70,7 +70,7 @@ export default new Router({
         {
           path: '',
           redirect: {
-            name: 'choose-person',
+            name: 'depart-person',
             params: {
               id: -1,
               path: '0'
