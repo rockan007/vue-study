@@ -32,8 +32,6 @@
 
   export default {
     name: 'depart-person',
-    props:{
-    },
     data: function () {
       return {
         curDepartInfo: {

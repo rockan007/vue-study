@@ -336,7 +336,8 @@
         if (type === 0) {
           storage.setSessionMap(consts.KEY_CHOOSE_PERSONS, this.chosePersons)
         }else{
-          storage.setSessionMap(consts.KEY_CHOOSE_PERSONS, this.chosePersons)
+          storage.setSessionMap(consts.KEY_CHOOSE_PERSONS, this.choseDeparts)
+          storage.setSessionSet(consts.KEY_ALL_CHOOSE_DEPARTS, this.choseDeparts.keys())
         }
         router.push({
           name: name,
