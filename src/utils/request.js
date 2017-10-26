@@ -85,22 +85,30 @@ export let request = {
     })
   },
   /**
-   * 发送通知接口
-   * @param users 用户
-   * @param departs 部门
-   * @param dataInfo 数据
+   *
+   * @param isGroup 是否群发
+   * @param infoMap 发送的人员或部门map数据
+   * @param dataInfo 其他数据
    * @param callback 回调
    */
-  postMessage: function (users, departs, dataInfo, callback) {
+  postMessage: function (isGroup, infoMap, dataInfo, callback) {
     let comData = {
       cmd: 'msg',
-      touser: Array.from(users.keys()).join('|'),
-      toparty: Array.from(departs.keys()).join('|'),
+      isgroup: isGroup ? 1 : 0,
+      touser: '',
+      toparty: '',
       totag: '',
       safe: 0,
-      tousername: Array.from(users.values()).join('|'),
-      topartyname: Array.from(departs.values()).join('|'),
+      tousername: '',
+      topartyname: '',
       totagname: ''
+    }
+    if (isGroup) {
+      comData.toparty = Array.from(infoMap.keys()).join('|')
+      comData.topartyname = Array.from(infoMap.values()).join('|')
+    } else {
+      comData.touser = Array.from(infoMap.keys()).join('|')
+      comData.tousername = Array.from(infoMap.values()).join('|')
     }
     Object.assign(comData, dataInfo)
     console.log('发布信息传递的值：' + JSON.stringify(comData))

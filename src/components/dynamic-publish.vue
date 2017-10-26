@@ -24,7 +24,17 @@
         </div>
       </div>
       <div style="width: 100%;height: 10px;background-color: #f2f2f2"></div>
-      <div class="weui-cell weui-cell_access" v-on:click="routeToPersons(0)">
+      <div class="weui-cell weui-cell_switch">
+        <div class="weui-cell__bd">是否群发</div>
+        <div class="weui-cell__ft">
+          <label for="switch" class="weui-switch-cp">
+            <input id="switch" class="weui-switch-cp__input" type="checkbox" checked
+                   v-on:change="isDepartPublish($event)">
+            <div class="weui-switch-cp__box"></div>
+          </label>
+        </div>
+      </div>
+      <div v-if="!isPubDepart" class="weui-cell weui-cell_access" v-on:click="routeToPersons(0)">
         <div class="weui-cell__bd">
           通知人员选择
         </div>
@@ -32,7 +42,7 @@
           {{chosePersons.size > 99 ? "99+" : chosePersons.size}}
         </div>
       </div>
-      <div class="weui-cell weui-cell_access" v-on:click="routeToPersons(1)">
+      <div v-if="isPubDepart" class="weui-cell weui-cell_access" v-on:click="routeToPersons(1)">
         <div class="weui-cell__bd">
           通知部门选择
         </div>
@@ -101,11 +111,22 @@
       },
       uploadFiles: function (newVal) {
         console.log('dynamic-publish获取的文件列表：' + JSON.stringify(newVal))
+      },
+      isPubDepart: function (newVal) {
+        if (newVal) {
+
+        } else {
+
+        }
       }
     },
     methods: {
+      isDepartPublish: function (e) {
+        this.isPubDepart = e.target.checked
+      },
       getDefaultData: function () {
         return {
+          isPubDepart: true,//发送到部门，false发送到人员
           msgType: 2,
           msgStyles: consts.MSGSTYLES,
           title: '',
@@ -120,7 +141,7 @@
           },
           publishing: false,
           isLoading: false,
-          chooseType: 0,//0：人员 1部门
+          chooseType: 1,//0：人员 1部门
           choseDepartsPersons: new Map()
         }
       },
@@ -146,13 +167,25 @@
 
       },
       publishMethod: function () {
+        console.log('&&&&&com-publish&&&&&发布按钮的点击事件')
         if (this.publishing) {
           return
         }
         this.publishing = true
-        console.log('&&&&&com-publish&&&&&发布按钮的点击事件')
-        if (this.chosePersons.size === 0 && this.choseDeparts.size === 0) {
-          this.toastContent = '请选择接收人员或部门'
+        if (!this.isPubDepart && this.chosePersons.length > 1000) {
+          this.toastContent = '选择部门人员数大于1000，无法发布'
+          this.isShowToast = true
+          this.publishing = false
+          return
+        }
+        if (!this.isPubDepart && this.chosePersons.size === 0) {
+          this.toastContent = '请选择接收人员'
+          this.isShowToast = true
+          this.publishing = false
+          return
+        }
+        if (this.isPubDepart && this.choseDeparts.size === 0) {
+          this.toastContent = '请选择接收部门'
           this.isShowToast = true
           this.publishing = false
           return
@@ -257,32 +290,27 @@
       publish: function (content) { //发布
         console.log('****publish****')
         let com = this
-        com.getDepartsPersons(function () {
-          if (com.chosePersons.size === 0) {
-            com.toastContent = '已选部门没有人员，清重新选择'
+
+        console.log('当前发布信息内容：' + JSON.stringify(content))
+        let pubMap
+        if (com.isPubDepart) {
+          pubMap = com.choseDeparts
+        } else {
+          pubMap = com.chosePersons
+        }
+        request.postMessage(com.isPubDepart, pubMap, content, function (data) {
+          console.log('发送消息，返回的值：' + JSON.stringify(data))
+          console.log(data)
+          com.publishing = false
+          if (data.RspCode === '0000') {
+            com.toastContent = '发布成功'
             com.isShowToast = true
-            return
-          }
-          if (com.chosePersons.length > 1000) {
-            com.toastContent = '选择部门人员数大于1000，无法发布'
+            com.resetData()
+            com.$emit('pubSuccess')
+          } else {
+            com.toastContent = '发布失败:' + data.RspTxt
             com.isShowToast = true
-            return
           }
-          console.log('当前发布信息内容：' + JSON.stringify(content))
-          request.postMessage(com.chosePersons, com.choseDeparts, content, function (data) {
-            console.log('发送消息，返回的值：' + JSON.stringify(data))
-            console.log(data)
-            com.publishing = false
-            if (data.RspCode === '0000') {
-              com.toastContent = '发布成功'
-              com.isShowToast = true
-              com.resetData()
-              com.$emit('pubSuccess')
-            } else {
-              com.toastContent = '发布失败:' + data.RspTxt
-              com.isShowToast = true
-            }
-          })
         })
       },
       getDepartsPersons: function (callback) {
@@ -335,7 +363,7 @@
         let name = type === 0 ? 'depart-person' : 'choose-depart'
         if (type === 0) {
           storage.setSessionMap(consts.KEY_CHOOSE_PERSONS, this.chosePersons)
-        }else{
+        } else {
           storage.setSessionMap(consts.KEY_CHOOSE_PERSONS, this.choseDeparts)
           storage.setSessionSet(consts.KEY_ALL_CHOOSE_DEPARTS, this.choseDeparts.keys())
         }
@@ -368,7 +396,7 @@
     margin-top: 0;
   }
 
-  .weui-switch:checked {
+  .weui-switch:checked, .weui-switch-cp__input:checked ~ .weui-switch-cp__box {
     border-color: #46bdff;
     background-color: #46bdff;
   }
