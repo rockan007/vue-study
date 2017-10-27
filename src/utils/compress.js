@@ -5,11 +5,23 @@ import { consts } from '../mock-data/consts'
 import { request } from './request'
 
 export let compress = {
+  /**
+   *
+   * @param file
+   * @param maxSize
+   * @param callback
+   */
   uploadImg: function (file, maxSize, callback) {
     maxSize = maxSize * 1024 * 1024
     console.log('要处理的图片地址：' + file.name)
     this.getFileReader(file, maxSize, callback)
   },
+  /**
+   *
+   * @param file
+   * @param maxSize
+   * @param callback
+   */
   getFileReader: function (file, maxSize, callback) {
     let com = this
     let reader = new FileReader()
@@ -34,10 +46,21 @@ export let compress = {
 
     reader.readAsDataURL(file)
   },
+  /**
+   *
+   * @param formData
+   * @param callback
+   */
   postFile: function (formData, callback) {
     console.log('开始上传')
     request.postData(consts.UPLOADURL, formData, callback)
   },
+  /**
+   *
+   * @param img
+   * @param suitableSize
+   * @return {string}
+   */
   getCanvasDataUrl: function (img, suitableSize) {
     console.log('*****重绘图片的宽高******')
     let imageType = 'image/jpeg',
@@ -49,12 +72,23 @@ export let compress = {
     ctx.drawImage(img, 0, 0, suitableSize.width, suitableSize.height)
     return canvas.toDataURL(imageType, imageArgu)
   },
+  /**
+   *
+   * @param imgInfo
+   * @param multi
+   * @return {*}
+   */
   getSuitableSize: function (imgInfo, multi) {
     imgInfo.width = imgInfo.width / multi
     imgInfo.height = imgInfo.height / multi
     console.log('获取的图片要裁剪的尺寸：' + JSON.stringify(imgInfo))
     return imgInfo
   },
+  /**
+   *
+   * @param result
+   * @param callback
+   */
   getImgInfo: function (result, callback) {
     let img = new Image()
     let imgInfo = {}
@@ -68,7 +102,12 @@ export let compress = {
 
     img.src = result
   },
-
+  /**
+   *
+   * @param base64Url
+   * @param mime
+   * @return {*}
+   */
   base64ToBlob: function (base64Url, mime) {
     let base64 = base64Url.replace(/^data:image\/(png|jpeg|jpg);base64,/, '')
     let sliceSize = 1024
@@ -90,6 +129,11 @@ export let compress = {
       type: mime
     })
   },
+  /**
+   *
+   * @param videoUrl
+   * @param callback
+   */
   getVideoCover: function (videoUrl, callback) {
     let com = this
     let video = document.createElement('video')
@@ -98,6 +142,11 @@ export let compress = {
     })
     video.src = videoUrl
   },
+  /**
+   *
+   * @param video
+   * @return {*}
+   */
   captureImage: function (video) {
     let suitableSize = {
       width: video.videoWidth,

@@ -3,7 +3,8 @@
   <div v-else>
     <div v-if="curDepartInfo.departList.length>0" class="weui-cells">
       <!--部门选项-->
-      <a v-for="(item,index) in curDepartInfo.departList" class="weui-cell weui-cell_access">
+      <a v-for="(item,index) in curDepartInfo.departList" class="weui-cell"
+         v-bind:class="[{'weui-cell_access':item.departList.length>0}]">
         <div class="weui-cell__hd">
           <label v-bind:for="item.value">
             <input type="checkbox" class="" v-bind:id="item.value" v-bind:value="item.value"
@@ -397,7 +398,8 @@
   .weui-cell__bd > p {
     font-size: 15px;
   }
-  .page{
+
+  .page {
     opacity: 1;
   }
 </style>
