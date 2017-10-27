@@ -1,30 +1,35 @@
 <!--文件选择组件-->
 <template>
-  <div class='weui-uploader'>
-    <div class="weui-uploader__hd">
-      <p class="weui-uploader__title">图片上传</p>
-      <div class="weui-uploader__info">{{showImages.length}}/9</div>
-    </div>
-    <div class='weui-uploader__bd'>
-      <ul class='weui-uploader__files' id="uploaderFiles">
-        <li v-for="(image,index) in showImages" class='weui-uploader__file'
-            v-bind:style="{backgroundImage:'url('+image+')'}" v-on:click="previewImage(index)">
-          <div class="weui-uploader__file-content"
-               v-bind:class="[{displayNone:msgType!==5},{displayBlock:msgType===5}]">
-            video
-          </div>
-        </li>
-      </ul>
-      <div class='weui-uploader__input-box'>
-        <input id="uploaderInput" class='weui-uploader__input' type="file" v-bind:accept="getAcceptType()"
-               v-on:change="selectFile($event)" v-bind:disabled="uploadFiles.length>=9" multiple>
+  <div>
+    <div class='weui-uploader'>
+      <div class="weui-uploader__hd">
+        <p class="weui-uploader__title">图片上传</p>
+        <div class="weui-uploader__info">{{showImages.length}}/9</div>
+      </div>
+      <div class='weui-uploader__bd'>
+        <ul class='weui-uploader__files' id="uploaderFiles">
+          <li v-for="(image,index) in showImages" class='weui-uploader__file'
+              v-bind:style="{backgroundImage:'url('+image+')'}" v-on:click="previewImage(index)">
+            <div class="weui-uploader__file-content"
+                 v-bind:class="[{displayNone:msgType!==5},{displayBlock:msgType===5}]">
+              video
+            </div>
+            <i class="weui-icon-cancel" v-on:click="sureToDel(index)"></i>
+          </li>
+        </ul>
+        <div class='weui-uploader__input-box'>
+          <input id="uploaderInput" class='weui-uploader__input' type="file" v-bind:accept="getAcceptType()"
+                 v-on:change="selectFile($event)" v-bind:disabled="uploadFiles.length>=9" multiple>
+        </div>
       </div>
     </div>
+    <dialog v-bind:showDialog="showDialog" v-bind:dialogData="diaData" v-on:diaCallback="diaCallback"></dialog>
   </div>
 </template>
 <script>
   import router from '../router/index'
   import { compress } from '../utils/compress'
+  import dialog from './dialog.vue'
 
   export default {
     name: 'extra-file',
@@ -40,6 +45,7 @@
         }
       }
     },
+    templates: [dialog],
     beforeRouteLeave (to, from, next) {
       //在路由离开前，清空value值
       document.getElementById('uploaderInput').value = 'undefined'
@@ -49,7 +55,13 @@
         toastContent: '',
         showGallery: false,
         showImages: [],
-        isUploading: false
+        isUploading: false,
+        activeIndex: -1,
+        showDialog: false,
+        diaData: {
+          title: '',
+          content: ''
+        }
       }
     },
     mounted: function () {
@@ -69,6 +81,23 @@
       }
     },
     methods: {
+      sureToDel: function (index) {
+        this.activeIndex = index
+        this.showDialog = true
+      },
+      /**
+       *
+       * @param type 0 取消删除 1 确定删除
+       */
+      diaCallback: function (type) {
+        this.showDialog = false
+        if (type === 1) {
+          this.delFile()
+        }
+      },
+      delFile: function () {
+        //todo 删除文件
+      },
       getBackImg: function (fileInfo) {
         let com = this
         switch (this.msgType) {
@@ -141,6 +170,7 @@
           if (file.type === '') {
             return
           }
+          this.getCurType(file)
           if (!this.isCurType(file)) {
             this.$emit('showToast', '所选文件类型错误')
             return
@@ -151,6 +181,9 @@
           }
           this.uploadFile(files, event.target)
         }
+      },
+      getCurType: function () {
+        //todo 根据选取的文件类型，设置当前消息类型
       },
       uploadFile: function (files, target) {
         let com = this
@@ -293,5 +326,12 @@
   .weui-uploader__file {
     width: 69px;
     height: 69px;
+    position: relative;
+  }
+
+  .weui-uploader__file > .weui-icon-cancel {
+    position: absolute;
+    top: -8px;
+    right: -12px;
   }
 </style>

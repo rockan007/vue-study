@@ -20,19 +20,7 @@
         </a>
       </div>
     </div>
-    <div class="js_dialog" v-bind:class="[{'display-none':!showDialog},{'display-block':showDialog}]">
-      <div class="weui-mask"></div>
-      <div class="weui-dialog">
-        <div class="weui-dialog__hd">
-          <strong class="weui-dialog__title">删除图片</strong>
-        </div>
-        <div class="weui-dialog__bd">确定要删除此张图片？</div>
-        <div class="weui-dialog__ft">
-          <a class="weui-dialog__btn weui-dialog__btn-default" v-on:click="delImage()">确定</a>
-          <a class="weui-dialog__btn weui-dialog__btn_primary" v-on:click="showDialog=false">取消</a>
-        </div>
-      </div>
-    </div>
+    <dialog v-bind:showDialog="showDialog" v-bind:dialogData="dialogData" v-on:diaCallback="diaCallback"></dialog>
   </div>
 
 </template>
@@ -40,6 +28,7 @@
   import 'swiper/dist/css/swiper.min.css'
   import Swiper from 'swiper/dist/js/swiper.min'
   import router from '../router/index'
+  import dialog from './dialog.vue'
 
   export default {
     name: 'image-preview',
@@ -56,10 +45,15 @@
         showGallery: false,
         mSwiper: {},
         dealtImages: this.uploadFiles,
-        showDialog: false
+        showDialog: false,
+        dialogData: {
+          title: '',
+          content: ''
+        }
       }
 
     },
+    templates: [dialog],
     watch: {
       uploadFiles: function (newVal) {
         console.log('preview界面获取的uploadFiles：' + JSON.stringify(newVal))
@@ -120,6 +114,12 @@
 
     },
     methods: {
+      diaCallback: function (type) {
+        this.showDialog = false
+        if (type === 1) {
+          this.delImage()
+        }
+      },
       delImage: function () {
         console.log('删除文件')
         this.dealtImages.splice(this.mSwiper.activeIndex, 1)
