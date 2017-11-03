@@ -57,19 +57,28 @@
       }
     },
     methods: {
-      setSessionStorage: function () {
+      setSessionStorage: function (choseAllDeparts) {
         storage.setSessionStorage(consts.KEY_DEPARTS_CHILDREN_TREE, this.childrenTree)
+        storage.setSessionSet(consts.KEY_ALL_CHOOSE_DEPARTS, choseAllDeparts)
       },
       setDepartStatus: function () {
         console.log('****choose-depart****setDepartStatus*****')
         let childDeparts = this.curDepartInfo.departList
         let choseAllDeparts = storage.getSessionSet(consts.KEY_ALL_CHOOSE_DEPARTS)
+        if (choseAllDeparts.has(this.curDepartInfo.value)) {
+          this.curDepartInfo.isChecked = true
+        }
         console.log('获取的已选部门数组：' + JSON.stringify(Array.from(storage.getSessionMap(consts.KEY_CHOOSE_DEPARTS))))
         for (let childDepart of childDeparts) {
-          childDepart.isChecked = choseAllDeparts.has(childDepart.value)
+          if (this.curDepartInfo.isChecked) {
+            choseAllDeparts.add(childDepart.value)
+            childDepart.isChecked = true
+          } else {
+            childDepart.isChecked = choseAllDeparts.has(childDepart.value)
+          }
         }
         this.isLoading = false
-        this.setSessionStorage()
+        this.setSessionStorage(choseAllDeparts)
       },
       /**
        * 添加或删除部门的逻辑
@@ -80,9 +89,9 @@
         console.log('****choose-depart****toggleChoseDepart*****')
         let ids = new Set()
         if (!isAdd) {
-          this.getAllParentIds(depart, ids)
+          this.getParentIds(this.childrenTree, this.path.split('-'), ids)
         }
-        this.getAllChildIds(depart, ids)
+        this.getAllChildIds(depart, ids)//获取所有子部门ids
         console.log('获取的要删除的ids:' + JSON.stringify(Array.from(ids)))
         let allChoseDeparts = storage.getSessionSet(consts.KEY_ALL_CHOOSE_DEPARTS)
         let choseDeparts = storage.getSessionMap(consts.KEY_CHOOSE_DEPARTS)
@@ -118,37 +127,6 @@
         storage.setSessionSet(consts.KEY_ALL_CHOOSE_DEPARTS, allChoseDeparts)
         storage.setSessionMap(consts.KEY_CHOOSE_DEPARTS, choseDeparts)
         this.$emit('choseDeparts', choseDeparts)
-      },
-      setParentIsChose: function (choseDeparts, allChoseDeparts) {
-        console.log('****choose-depart****setParentIsChose*****')
-        console.log('本部门信息：' + JSON.stringify(this.curDepartInfo))
-        let pathArr = this.path.split('-')
-        this.setParentChoseInSession(pathArr, choseDeparts, allChoseDeparts)
-      },
-      /**
-       *
-       */
-      setParentChoseInSession: function (pathArr, choseDeparts, allChoseDeparts) {
-        console.log('****choose-depart****setParentChoseInSession****')
-        let curDepart = this.getNodeInTree(this.childrenTree, pathArr)
-        console.log('获取的父部门信息:' + JSON.stringify(curDepart))
-        let isChose = curDepart.departList.every(function (depart) {
-          return choseDeparts.has(depart.value)
-        })
-        console.log('部门是否已选择：' + isChose)
-        if (isChose) {
-          allChoseDeparts.add(curDepart.value)
-          choseDeparts.set(curDepart.value, curDepart.title)
-          console.log('选择后的数组：' + JSON.stringify(choseDeparts))
-          for (let depart of curDepart.departList) {
-            choseDeparts.delete(depart.value)
-          }
-          console.log('获取的当前路径数组：' + pathArr)
-          if (pathArr.length > 1) {
-            this.setParentChoseInSession(pathArr.slice(0, pathArr.length - 1), choseDeparts, allChoseDeparts)
-
-          }
-        }
       },
       /**
        * 添加已选父部门的子部门
@@ -198,18 +176,13 @@
         }
       },
       /**
-       * 递归获取部门的父部门
+       *获取部门的父部门ids
        */
-      getAllParentIds: function (depart, ids) {
-        console.log('****choose-depart**** getAllParentIds****')
-        console.log('当前部门信息：' + JSON.stringify(depart))
-        if (typeof (depart.parentDepart) !== 'undefined') {
-          console.log(typeof(ids))
-          console.log(ids)
-          ids.add(depart.parentDepart.value)
-          this.getAllParentIds(depart.parentDepart, ids)
-        } else {
-          return ids
+      getParentIds: function (departTree, pathArr, parentsIds) {
+        console.log('******获取此部门的父部门id*******')
+        parentsIds.add(departTree[pathArr[0]].value)
+        if (pathArr.length > 1) {
+          this.getParentIds(departTree[pathArr[0]].departList, pathArr.slice(1))
         }
       },
       /**
@@ -256,7 +229,6 @@
         request.getDepartList(function (response) {
           console.log('depart-person获取的部门列表：' + response)
           com.childrenTree = com.getChildrenTree(JSON.parse(response))
-//        com.parentTree = com.getParentsTree(response)
           com.getCurDepartInfo()
         })
       },
@@ -296,7 +268,7 @@
         if (typeof (nodes) === 'undefined' || nodes.length === 0) {
           return []
         }
-        nodes = JSON.parse(JSON.stringify(this.getParentsTree(nodes)))
+//        nodes = JSON.parse(JSON.stringify(this.getParentsTree(nodes)))
         nodes.sort(function (a, b) {
           return a.value - b.value
         })
@@ -304,54 +276,20 @@
           node, roots = []
         for (let i = 0; i < nodes.length; i++) {
           node = nodes[i]
-          node.departList = []
+          node.departLst = []
           node.personList = []
           map[node.value] = i // use map to look-up the parents
           if (node.parentvalue > 0) {
-            if (node.parentvalue === 1) {
-              nodes[map[-1]].departList.push(node)
-            } else {
+            if (typeof(map[node.parentvalue]) !== 'undefined') {
               nodes[map[node.parentvalue]].departList.push(node)
+            } else {
+              nodes[map[-1]].departList.push(node)
             }
           } else {
             roots.push(node)
           }
         }
         console.log('getChildrenTree获取的数据：' + JSON.stringify(roots))
-        return roots
-      },
-      /**
-       * 获取包含父部门的tree
-       * @param nodes 列表
-       * @returns {Array} 含父部门的列表
-       */
-      getParentsTree: function (nodes) {
-        console.log('****choose-depart***getParentsTree***')
-        if (!nodes || nodes.length === 0) {
-          return []
-        }
-//        nodes = JSON.parse(JSON.stringify(this.getChildrenList(nodes)))
-        nodes.sort(function (a, b) {
-          return a.value - b.value
-        })
-        console.log('要处理的数组：' + JSON.stringify(nodes))
-
-        let map = {},
-          node,
-          roots = []
-        for (let i = 0; i < nodes.length; i++) {
-          node = nodes[i]
-          map[node.value] = i // use map to look-up the parents
-          roots.push(node)
-          if (node.parentvalue > 0) {
-            if (node.parentvalue === 1) {
-              nodes[i].parentDepart = nodes[map[-1]]
-            } else {
-              nodes[i].parentDepart = nodes[map[node.parentvalue]]
-            }
-          }
-        }
-        console.log('getParentsTree获取的数据：' + JSON.stringify(roots))
         return roots
       },
       routerToChild: function (item, index) {

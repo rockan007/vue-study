@@ -5,6 +5,7 @@ import App from './App.vue'
 import router from './router'
 import './assets/css/weui.min.css'
 import './assets/css/weui-extra.min.css'
+import './assets/js/vconsole.min'
 
 /* eslint-disable no-new */
 /**

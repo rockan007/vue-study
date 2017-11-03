@@ -361,10 +361,10 @@
       },
       routeToPersons: function (type) {
         let name = type === 0 ? 'depart-person' : 'choose-depart'
-        if (type === 0) {
+        if (type === 0) {//选人
           storage.setSessionMap(consts.KEY_CHOOSE_PERSONS, this.chosePersons)
-        } else {
-          storage.setSessionMap(consts.KEY_CHOOSE_PERSONS, this.choseDeparts)
+        } else {//选部门
+          storage.setSessionMap(consts.KEY_CHOOSE_DEPARTS, this.choseDeparts)
           storage.setSessionSet(consts.KEY_ALL_CHOOSE_DEPARTS, this.choseDeparts.keys())
         }
         router.push({

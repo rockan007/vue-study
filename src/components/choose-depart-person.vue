@@ -40,7 +40,7 @@
 
   export default {
     name: 'depart-person',
-    props:{
+    props: {
       chosePersons: {
         type: Map,
         default: function () {
@@ -122,7 +122,7 @@
       getCurDepartPersons: function () {
         let com = this
         if (com.curDepartInfo.personList.length === 0) {
-          request.getDepartPersons(com.$route.params.id, 0, 1, function (data) {
+          request.getDepartPersons(com.departId, 0, 1, function (data) {
             console.log('获取的本部门人员:' + JSON.stringify(data))
             com.curDepartInfo.personList = data
             com.setPersonListStatus()
@@ -179,7 +179,7 @@
           node.personList = []
           map[node.value] = i // use map to look-up the parents
           if (node.parentvalue > 0) {
-            if (node.parentvalue === 1) {
+            if (typeof(map[node.parentvalue]) === 'undefined') {
               nodes[map[-1]].departList.push(node)
             } else {
               nodes[map[node.parentvalue]].departList.push(node)
@@ -236,7 +236,8 @@
   .weui-cell__bd > p {
     font-size: 15px;
   }
-  .page{
+
+  .page {
     opacity: 1;
   }
 </style>
