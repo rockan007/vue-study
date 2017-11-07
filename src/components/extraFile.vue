@@ -14,7 +14,7 @@
                  v-bind:class="[{displayNone:msgType!==5},{displayBlock:msgType===5}]">
               video
             </div>
-            <i class="weui-icon-cancel" v-on:click="sureToDel(index)"></i>
+            <!--<i class="weui-icon-cancel" v-on:click="sureToDel(index)"></i>-->
           </li>
         </ul>
         <div class='weui-uploader__input-box'>
@@ -23,13 +23,14 @@
         </div>
       </div>
     </div>
-    <dialog v-bind:showDialog="showDialog" v-bind:dialogData="diaData" v-on:diaCallback="diaCallback"></dialog>
+    <dialog-container v-bind:show-dialog="showDialog" v-bind:dialog-data="diaData"
+                      v-on:dia-callback="diaCallback"></dialog-container>
   </div>
 </template>
 <script>
   import router from '../router/index'
   import { compress } from '../utils/compress'
-  import dialog from './dialog.vue'
+  import dialogContainer from './dialog.vue'
 
   export default {
     name: 'extra-file',
@@ -45,7 +46,7 @@
         }
       }
     },
-    templates: [dialog],
+    components: {dialogContainer},
     beforeRouteLeave (to, from, next) {
       //在路由离开前，清空value值
       document.getElementById('uploaderInput').value = 'undefined'
@@ -73,18 +74,15 @@
         console.log('extraFile.vue获取的nmsgType newVal:' + newVal)
       },
       uploadFiles: function (newVal, oldVal) {
+        console.log('*****uploadFiles******')
         console.log('文件数组已改变：' + JSON.stringify(newVal))
-        this.showImages = []
-        for (let i in newVal) {
-          this.getBackImg(newVal[i])
-        }
+        this.showImages = newVal.map(function (imgInfo) {
+          return imgInfo.fileurl
+        })
+        console.log('获取的文件列表：' + JSON.stringify(this.showImages))
       }
     },
     methods: {
-      sureToDel: function (index) {
-        this.activeIndex = index
-        this.showDialog = true
-      },
       /**
        *
        * @param type 0 取消删除 1 确定删除
@@ -97,24 +95,6 @@
       },
       delFile: function () {
         //todo 删除文件
-      },
-      getBackImg: function (fileInfo) {
-        let com = this
-        switch (this.msgType) {
-          case 1:
-          case 2:
-          case 3:
-            this.showImages.push(fileInfo.fileurl)
-            break
-          case 5:
-            console.log('extraFile为视频')
-            compress.getVideoCover(fileInfo.fileurl, function (base64url) {
-              com.showImages.push(base64url)
-            })
-            break
-          default:
-            break
-        }
       },
       previewImage: function (index) {
         console.log('选择后的文件点击事件')

@@ -7,7 +7,7 @@
         <div class="swiper-wrapper">
           <!-- Slides -->
           <div v-for="(image,index) in dealtImages" class="swiper-slide" v-bind:style="{backgroundImage:'url('+image.fileurl+')',
-          backgroundSize:'cover',backgroundPosition:'center'}">
+          backgroundSize:'contain',backgroundPosition:'center'}">
           </div>
         </div>
         <!-- If we need pagination -->
@@ -20,7 +20,8 @@
         </a>
       </div>
     </div>
-    <dialog v-bind:showDialog="showDialog" v-bind:dialogData="dialogData" v-on:diaCallback="diaCallback"></dialog>
+    <dialog-container v-bind:showDialog="showDialog" v-bind:dialogData="dialogData"
+                      v-on:diaCallback="diaCallback"></dialog-container>
   </div>
 
 </template>
@@ -28,7 +29,7 @@
   import 'swiper/dist/css/swiper.min.css'
   import Swiper from 'swiper/dist/js/swiper.min'
   import router from '../router/index'
-  import dialog from './dialog.vue'
+  import dialogContainer from './dialog.vue'
 
   export default {
     name: 'image-preview',
@@ -47,16 +48,19 @@
         dealtImages: this.uploadFiles,
         showDialog: false,
         dialogData: {
-          title: '',
-          content: ''
+          title: '删除图片',
+          content: '确定要删除此张图片？'
         }
       }
 
     },
-    templates: [dialog],
+    components: {dialogContainer},
     watch: {
       uploadFiles: function (newVal) {
         console.log('preview界面获取的uploadFiles：' + JSON.stringify(newVal))
+      },
+      showDialog: function (newVal) {
+        console.log('当前newVal:' + newVal)
       }
     },
     mounted: function () {
@@ -66,55 +70,10 @@
         paginationClickable: true
       })
     },
-    filters: {
-      showTitle: function (value) {
-        switch (value) {
-          case 1:
-          case 2:
-          case 5:
-            return true
-          case 0:
-          case 3:
-          case 4:
-          case 6:
-            return false
-          default:
-            return false
-        }
-      },
-      showDescription: function (value) {
-        switch (value) {
-          case 0:
-          case 1:
-          case 2:
-            return true
-          case 3:
-          case 4:
-          case 6:
-            return false
-          default:
-            return false
-        }
-      },
-      showExtra: function (value) {
-        switch (value) {
-          case 0:
-          case 1:
-            return false
-          case 2:
-          case 3:
-          case 4:
-          case 5:
-          case 6:
-            return true
-          default:
-            return false
-        }
-      }
-
-    },
+    filters: {},
     methods: {
       diaCallback: function (type) {
+        console.log('删除相片dialog的类型：' + type)
         this.showDialog = false
         if (type === 1) {
           this.delImage()

@@ -112,7 +112,7 @@
         //没有数据，请求数据
         request.getDepartList(function (response) {
           console.log('depart-person获取的部门列表：' + JSON.stringify(response))
-          com.childrenTree = com.getChildrenTree(JSON.parse(response))
+          com.childrenTree = com.getChildrenTree(response)
           com.getCurDepartInfo()
         })
       },

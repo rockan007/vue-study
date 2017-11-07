@@ -15,7 +15,7 @@
 </template>
 <script>
   export default {
-    name: 'dialog',
+    name: 'dialog-container',
     props: {
       showDialog: {
         type: Boolean,
@@ -25,18 +25,32 @@
         type: Object,
         default: function () {
           return {
-            title: '',
-            content: ''
+            title: '刪除图片',
+            content: '确定要删除这张图片？'
           }
         }
       }
     },
+    created:function () {
+      console.log("dialog+this.showDialog:"+this.showDialog)
+    },
     data: function () {
       return {}
     },
-    watch: {},
+    watch: {
+      showDialog: function (newVal, oldVal) {
+        console.log('***showDialog*****')
+        console.log('newVal:' + newVal + ',oldVal:' + oldVal)
+      },
+      dialogData: function (newVal, oldVal) {
+        console.log('****dialogData****')
+        console.log('newVal:' + JSON.stringify(newVal) + ',oldVal:' + JSON.stringify(oldVal))
+
+      }
+    },
     methods: {
       emitDiaCB: function (type) {
+        console.log("*****dialog*****type"+type)
         this.$emit('diaCallback', type)
       }
     }

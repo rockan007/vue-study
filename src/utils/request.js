@@ -25,18 +25,13 @@ export let request = {
   },
   //获取部门列表
   getDepartList: function (callback) {
-    // let response = JSON.parse('{"RspCode":"0000","RspTxt":"正常","RspData":"[{\\"value\\":4,\\"title\\":\\"测试组2\\",\\"parentvalue\\":2,\\"order\\":99999000},{\\"value\\":-1,\\"title\\":\\"全部\\",\\"parentvalue\\":0,\\"order\\":0}]"}')
-    // console.log(JSON.stringify(response))
-    // if (response.RspCode === '0000') {
-    //   callback(response.RspData)
-    // }
     this.postData(consts.MAINURL, JSON.stringify({
       cmd: 'persondeparts',
       type: 'findpage'
     }), function (response) {
       console.log('获取的部门列表值：' + JSON.stringify(response))
       if (response.RspCode === '0000') {
-        callback(response.RspData)
+        callback(JSON.parse(response.RspData));
       } else {
         if (response.RspCode !== '0013') {
           alert(response.RspTxt)

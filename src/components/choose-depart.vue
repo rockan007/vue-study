@@ -58,6 +58,8 @@
     },
     methods: {
       setSessionStorage: function (choseAllDeparts) {
+        console.log('***choose-depart*setSessionStorage*****')
+        console.log('所有已选部门：' + JSON.stringify(choseAllDeparts))
         storage.setSessionStorage(consts.KEY_DEPARTS_CHILDREN_TREE, this.childrenTree)
         storage.setSessionSet(consts.KEY_ALL_CHOOSE_DEPARTS, choseAllDeparts)
       },
@@ -88,7 +90,7 @@
       toggleChoseDepart: function (depart, isAdd) {
         console.log('****choose-depart****toggleChoseDepart*****')
         let ids = new Set()
-        if (!isAdd) {
+        if (!isAdd) {//删除
           this.getParentIds(this.childrenTree, this.path.split('-'), ids)
         }
         this.getAllChildIds(depart, ids)//获取所有子部门ids
@@ -96,15 +98,14 @@
         let allChoseDeparts = storage.getSessionSet(consts.KEY_ALL_CHOOSE_DEPARTS)
         let choseDeparts = storage.getSessionMap(consts.KEY_CHOOSE_DEPARTS)
         console.log('获取的已选部门数组：' + JSON.stringify(Array.from([...choseDeparts])))
-        if (!isAdd) {//如果是删除的部门的父部门为已选，则已选部门添加子部门数据
-          //删除部门，删除父部门的子部门
+        if (!isAdd) {//添加子部门的父部门的同级部门
           this.addParentChildDeparts(choseDeparts)
         }
-        for (let id of ids) {
-          if (isAdd) {//添加
+        for (let id of ids) {//
+          if (isAdd) {//添加所有子部门
             allChoseDeparts.add(id)
           } else {
-            //如果删除当前部门， 此部门的父部门，如何添加此部门的旁系部门为已选择部门？
+            //删除子部门 和父部门
             allChoseDeparts.delete(id)
           }
           choseDeparts.delete(id)
@@ -112,13 +113,7 @@
         if (isAdd) {//添加
           allChoseDeparts.add(depart.value)
           choseDeparts.set(depart.value, depart.title)
-          //添加父部门
-//          this.setParentIsChose(choseDeparts, allChoseDeparts)
-          //如果添加当前部门，则判断当前部门的父部门是否为全选？
-          //如果为全选,则此部门父部门的父部门是否为全选？递归？
-          //如果只记录全部已选部门
-          //最后 在已选部门中 删除 已选部门的子部门,然后将set重组为已选部门
-        } else {
+        } else {//删除此部门
           allChoseDeparts.delete(depart.value)
           choseDeparts.delete(depart.value)
         }
@@ -136,15 +131,18 @@
         console.log('****choose-depart****addParentChildDeparts****')
         let pathArr = this.path.split('-')
         let choseParent = this.getChoseParent(this.childrenTree, pathArr, choseDeparts)
+        console.log('获得的已选父部门：' + JSON.stringify(choseParent))
         if (choseParent !== null) {
           this.addChildInSession(choseParent, choseDeparts)
         }
       },
       /**
        *
+       * 将子部门设置为已选
        */
       addChildInSession: function (choseParent, choseDeparts) {
         console.log('****choose-depart****addChildInSession****')
+        //判断是否为当前子部门  停止添加
         if (this.curDepartInfo.departList.length > 0 && choseParent.value === this.curDepartInfo.departList[0].value) {
           return
         }
@@ -164,16 +162,17 @@
        */
       getChoseParent: function (childTree, pathArr, choseDeparts) {
         console.log('****choose-depart****getChoseParent****')
-        if (pathArr.length > 1) {
-          if (choseDeparts.has(childTree[pathArr[0]].value)) {
-            console.log('获取的父部门信息：' + childTree[pathArr[0]])
-            return childTree[pathArr[0]]
-          } else {
-            return this.getChoseParent(childTree[pathArr[0]].departList, pathArr.slice(1), choseDeparts)
-          }
+        if (choseDeparts.has(childTree[pathArr[0]].value)) {//如果最顶级部门为已选
+          console.log('获取的父部门信息：' + childTree[pathArr[0]])
+          return childTree[pathArr[0]]
         } else {
-          return null
+          if (pathArr.length > 1) {
+            return this.getChoseParent(childTree[pathArr[0]].departList, pathArr.slice(1), choseDeparts)
+          } else {
+            return null
+          }
         }
+
       },
       /**
        *获取部门的父部门ids
@@ -181,8 +180,9 @@
       getParentIds: function (departTree, pathArr, parentsIds) {
         console.log('******获取此部门的父部门id*******')
         parentsIds.add(departTree[pathArr[0]].value)
+        console.log('获取的parentIds:' + JSON.stringify(parentsIds))
         if (pathArr.length > 1) {
-          this.getParentIds(departTree[pathArr[0]].departList, pathArr.slice(1))
+          this.getParentIds(departTree[pathArr[0]].departList, pathArr.slice(1), parentsIds)
         }
       },
       /**
@@ -227,8 +227,8 @@
         }
         //没有数据，请求数据
         request.getDepartList(function (response) {
-          console.log('depart-person获取的部门列表：' + response)
-          com.childrenTree = com.getChildrenTree(JSON.parse(response))
+          console.log('depart-person获取的部门列表：' + JSON.stringify(response))
+          com.childrenTree = com.getChildrenTree(response)
           com.getCurDepartInfo()
         })
       },
@@ -276,7 +276,7 @@
           node, roots = []
         for (let i = 0; i < nodes.length; i++) {
           node = nodes[i]
-          node.departLst = []
+          node.departList = []
           node.personList = []
           map[node.value] = i // use map to look-up the parents
           if (node.parentvalue > 0) {

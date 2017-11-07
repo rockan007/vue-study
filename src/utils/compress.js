@@ -36,7 +36,7 @@ export let compress = {
           let blob = com.base64ToBlob(newDataUrl, 'image/jpeg')
           console.log('blob.type:' + blob.type)
           console.log('要传递的文件大小：' + blob.size)
-          formData.append('image', blob, Date.now() + '.jpg')
+          formData.append('image', blob, Date.now()+Math.random()*1000 + '.jpg')
         } else {
           formData.append('image', file)
         }
