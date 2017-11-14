@@ -67,18 +67,24 @@
         console.log('****choose-depart****setDepartStatus*****')
         let childDeparts = this.curDepartInfo.departList
         let choseAllDeparts = storage.getSessionSet(consts.KEY_ALL_CHOOSE_DEPARTS)
+        console.log('***所有已选部门：' + JSON.stringify(Array.from(choseAllDeparts)))
         if (choseAllDeparts.has(this.curDepartInfo.value)) {
           this.curDepartInfo.isChecked = true
+        } else {
+          this.curDepartInfo.isChecked = false
         }
         console.log('获取的已选部门数组：' + JSON.stringify(Array.from(storage.getSessionMap(consts.KEY_CHOOSE_DEPARTS))))
+        console.log('修改值后当前部门信息：' + JSON.stringify(this.curDepartInfo))
         for (let childDepart of childDeparts) {
           if (this.curDepartInfo.isChecked) {
             choseAllDeparts.add(childDepart.value)
+//            Vue.set(childDepart,isChecked,true)
             childDepart.isChecked = true
           } else {
             childDepart.isChecked = choseAllDeparts.has(childDepart.value)
           }
         }
+        console.log('修改值后当前部门信息：' + JSON.stringify(this.curDepartInfo))
         this.isLoading = false
         this.setSessionStorage(choseAllDeparts)
       },
@@ -88,10 +94,17 @@
        * @param{boolean} isAdd true 添加 false 删除
        */
       toggleChoseDepart: function (depart, isAdd) {
+        if (depart.value === -1) {
+          this.toggleAllDeparts(isAdd)
+          return
+        }
         console.log('****choose-depart****toggleChoseDepart*****')
         let ids = new Set()
         if (!isAdd) {//删除
           this.getParentIds(this.childrenTree, this.path.split('-'), ids)
+          if (this.curDepartInfo.value === -1) {
+            this.curDepartInfo.departList[0].isChecked = false
+          }
         }
         this.getAllChildIds(depart, ids)//获取所有子部门ids
         console.log('获取的要删除的ids:' + JSON.stringify(Array.from(ids)))
@@ -100,6 +113,7 @@
         console.log('获取的已选部门数组：' + JSON.stringify(Array.from([...choseDeparts])))
         if (!isAdd) {//添加子部门的父部门的同级部门
           this.addParentChildDeparts(choseDeparts)
+          console.log('已选的部门数据：' + JSON.stringify(choseDeparts))
         }
         for (let id of ids) {//
           if (isAdd) {//添加所有子部门
@@ -121,7 +135,46 @@
         console.log('保存的已选部门allSet:' + JSON.stringify(Array.from(allChoseDeparts)))
         storage.setSessionSet(consts.KEY_ALL_CHOOSE_DEPARTS, allChoseDeparts)
         storage.setSessionMap(consts.KEY_CHOOSE_DEPARTS, choseDeparts)
+        this.emitChoseDeparts(choseDeparts)
+      },
+      /**
+       * 全选的逻辑
+       */
+      toggleAllDeparts: function (isAdd) {
+        console.log('****toggleAllDeparts*****')
+        let allChoseDeparts = storage.getSessionSet(consts.KEY_ALL_CHOOSE_DEPARTS)
+        let choseDeparts = storage.getSessionMap(consts.KEY_CHOOSE_DEPARTS)
+        let ids = new Set()
+        console.log('当前部门信息：' + JSON.stringify(this.curDepartInfo))
+        this.getAllChildIds(this.curDepartInfo, ids)//获取所有子部门ids
+        console.log('所有子部门ids:' + JSON.stringify(Array.from(ids)))
+        choseDeparts.clear()
+        if (isAdd) {//添加
+          for (let id of ids) {
+            allChoseDeparts.add(id)
+          }
+        } else {//删除
+          allChoseDeparts.clear()
+        }
+        if (isAdd) {
+          choseDeparts.set(this.curDepartInfo.value, this.curDepartInfo.title)
+          for (let depart of this.curDepartInfo.departList) {
+            if (depart.value > 0) {
+              choseDeparts.set(depart.value, depart.title)
+            }
+          }
+        }
+        console.log('****allChoseDeparts*****' + JSON.stringify([...allChoseDeparts]))
+        console.log('****choseDeparts****' + JSON.stringify(Array.from(choseDeparts)))
+        storage.setSessionSet(consts.KEY_ALL_CHOOSE_DEPARTS, allChoseDeparts)
+        storage.setSessionMap(consts.KEY_CHOOSE_DEPARTS, choseDeparts)
+        this.setDepartStatus()
+        this.emitChoseDeparts(choseDeparts)
+      },
+      emitChoseDeparts: function (choseDeparts) {
+        choseDeparts.delete(-1)
         this.$emit('choseDeparts', choseDeparts)
+        console.log('传递的choseDeparts:' + JSON.stringify(choseDeparts))
       },
       /**
        * 添加已选父部门的子部门
@@ -143,12 +196,15 @@
       addChildInSession: function (choseParent, choseDeparts) {
         console.log('****choose-depart****addChildInSession****')
         //判断是否为当前子部门  停止添加
-        if (this.curDepartInfo.departList.length > 0 && choseParent.value === this.curDepartInfo.departList[0].value) {
+        if (this.curDepartInfo.departList.length > 0 && choseParent.value === this.curDepartInfo.departList[0].value
+          && this.curDepartInfo.value !== -1) {
           return
         }
         if (choseParent.departList.length > 0) {
           for (let depart of choseParent.departList) {
-            choseDeparts.set(depart.value, depart.title)
+            if (depart.value !== -1) {
+              choseDeparts.set(depart.value, depart.title)
+            }
             this.addChildInSession(depart, choseDeparts)
           }
         }
@@ -208,7 +264,9 @@
        */
       toggleDepart: function (depart, event) {
         console.log('****choose-depart****toggleDepart****')
+        console.log(JSON.stringify(depart))
         let isAdd = event.target.checked
+        depart.isChecked = isAdd
         this.toggleChoseDepart(depart, isAdd)
       },
       /**
@@ -276,8 +334,20 @@
           node, roots = []
         for (let i = 0; i < nodes.length; i++) {
           node = nodes[i]
+          node.isChecked = false
           node.departList = []
           node.personList = []
+          if (node.value === -1) {
+            node.parentvalue = -1
+            node.departList.push({
+              value: -1,
+              parentvalue: 0,
+              title: '全部',
+              departList: [],
+              personList: [],
+              isChecked: false
+            })
+          }
           map[node.value] = i // use map to look-up the parents
           if (node.parentvalue > 0) {
             if (typeof(map[node.parentvalue]) !== 'undefined') {

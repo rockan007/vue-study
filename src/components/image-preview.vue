@@ -7,7 +7,7 @@
         <div class="swiper-wrapper">
           <!-- Slides -->
           <div v-for="(image,index) in dealtImages" class="swiper-slide" v-bind:style="{backgroundImage:'url('+image.fileurl+')',
-          backgroundSize:'contain',backgroundPosition:'center'}">
+          backgroundSize:'contain',backgroundPosition:'center',backgroundRepeat:'no-repeat'}">
           </div>
         </div>
         <!-- If we need pagination -->
