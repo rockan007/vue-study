@@ -106,10 +106,11 @@
 
   .preview-container {
     position: relative;
+    background-color: #000000;
   }
 
   .weui-gallery__opr {
-    background-color: transparent;
+    background-color: #7f7f7f;
     z-index: 1123;
   }
 

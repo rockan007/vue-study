@@ -3,6 +3,7 @@
  */
 import { consts } from '../mock-data/consts'
 import { request } from './request'
+import 'exif-js'
 
 export let compress = {
   /**
@@ -29,22 +30,31 @@ export let compress = {
       let result = this.result
       let formData = new FormData()
       com.getImgInfo(result, function (img, imgInfo) {
-        console.log('获取的文件信息：' + JSON.stringify(imgInfo))
-        console.log('原图尺寸：' + result.length)
-        if (result.length > maxSize) {
-          let newDataUrl = com.getCanvasDataUrl(img, com.getSuitableSize(imgInfo, Math.ceil(result.length / maxSize)))
-          let blob = com.base64ToBlob(newDataUrl, 'image/jpeg')
-          console.log('blob.type:' + blob.type)
-          console.log('要传递的文件大小：' + blob.size)
-          formData.append('image', blob, Date.now()+Math.random()*1000 + '.jpg')
-        } else {
-          formData.append('image', file)
-        }
-        com.postFile(formData, callback)
+        com.getOrientation(img, function (orientation) {
+          console.log('获取的文件信息：' + JSON.stringify(imgInfo))
+          console.log('原图尺寸：' + result.length)
+          if (result.length > maxSize) {
+            let newDataUrl = com.getCanvasDataUrl(img, com.getSuitableSize(imgInfo, Math.ceil(result.length / maxSize)), orientation)
+            let blob = com.base64ToBlob(newDataUrl, 'image/jpeg')
+            console.log('blob.type:' + blob.type)
+            console.log('要传递的文件大小：' + blob.size)
+            formData.append('image', blob, Date.now() + Math.random() * 1000 + '.jpg')
+          } else {
+            formData.append('image', file)
+          }
+          com.postFile(formData, callback)
+        })
+
       })
     }
 
     reader.readAsDataURL(file)
+  },
+  getOrientation: function (img, callback) {
+    EXIF.getData(img, function () {
+      orientation = EXIF.getTag(this, 'Orientation')
+      callback(orientation)
+    })
   },
   /**
    *
@@ -61,7 +71,7 @@ export let compress = {
    * @param suitableSize
    * @return {string}
    */
-  getCanvasDataUrl: function (img, suitableSize) {
+  getCanvasDataUrl: function (img, suitableSize, orientation) {
     console.log('*****重绘图片的宽高******')
     let imageType = 'image/jpeg',
       imageArgu = 0.7
@@ -69,6 +79,29 @@ export let compress = {
     canvas.width = suitableSize.width
     canvas.height = suitableSize.height
     let ctx = canvas.getContext('2d')
+    switch (orientation) {
+      case 3:
+        // 180° rotate left
+        ctx.translate(canvas.width, canvas.height)
+        ctx.rotate(Math.PI)
+        break
+      case 6:
+        // 90° rotate right
+        canvas.width = suitableSize.height
+        canvas.height = suitableSize.width
+        ctx.rotate(0.5 * Math.PI)
+        ctx.translate(0, -canvas.height)
+        break
+      case 8:
+        // 90° rotate left
+        canvas.width = suitableSize.height
+        canvas.height = suitableSize.width
+        ctx.rotate(-0.5 * Math.PI)
+        ctx.translate(-canvas.width, 0)
+        break
+      default:
+        break
+    }
     ctx.drawImage(img, 0, 0, suitableSize.width, suitableSize.height)
     return canvas.toDataURL(imageType, imageArgu)
   },
