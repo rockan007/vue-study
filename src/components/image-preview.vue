@@ -110,7 +110,7 @@
   }
 
   .weui-gallery__opr {
-    background-color: #7f7f7f;
+    background-color: transparent;
     z-index: 1123;
   }
 
@@ -126,7 +126,7 @@
   .swiper-slide {
     text-align: center;
     font-size: 18px;
-    background: #fff;
+    background: #000000;
 
     /* Center slide text vertically */
     display: -webkit-box;

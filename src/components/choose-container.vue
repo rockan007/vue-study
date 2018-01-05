@@ -126,7 +126,7 @@
   }
 
   .margin-bottom50 {
-    margin-bottom: 55px;
+    padding-bottom: 63px;
   }
 
   .weui-btn_primary:not(.weui-btn_disabled):active {

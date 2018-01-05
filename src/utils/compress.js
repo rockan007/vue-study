@@ -3,7 +3,7 @@
  */
 import { consts } from '../mock-data/consts'
 import { request } from './request'
-import 'exif-js'
+import EXIF from 'exif-js'
 
 export let compress = {
   /**
@@ -25,12 +25,13 @@ export let compress = {
    */
   getFileReader: function (file, maxSize, callback) {
     let com = this
-    let reader = new FileReader()
-    reader.onload = function () {
-      let result = this.result
-      let formData = new FormData()
-      com.getImgInfo(result, function (img, imgInfo) {
-        com.getOrientation(img, function (orientation) {
+    com.getOrientation(file, function (orientation) {
+      let reader = new FileReader()
+      reader.onload = function () {
+        let result = this.result
+        let formData = new FormData()
+        com.getImgInfo(result, function (img, imgInfo) {
+          // com.getOrientation(img, function (orientation) {
           console.log('获取的文件信息：' + JSON.stringify(imgInfo))
           console.log('原图尺寸：' + result.length)
           if (result.length > maxSize) {
@@ -44,15 +45,16 @@ export let compress = {
           }
           com.postFile(formData, callback)
         })
+      }
 
-      })
-    }
+      reader.readAsDataURL(file)
+    })
 
-    reader.readAsDataURL(file)
   },
   getOrientation: function (img, callback) {
     EXIF.getData(img, function () {
-      orientation = EXIF.getTag(this, 'Orientation')
+      let orientation = EXIF.getTag(img, 'Orientation')
+      console.log('获取的方向数据：' + orientation)
       callback(orientation)
     })
   },
@@ -69,6 +71,7 @@ export let compress = {
    *
    * @param img
    * @param suitableSize
+   * @param orientation
    * @return {string}
    */
   getCanvasDataUrl: function (img, suitableSize, orientation) {
@@ -89,15 +92,15 @@ export let compress = {
         // 90° rotate right
         canvas.width = suitableSize.height
         canvas.height = suitableSize.width
+        ctx.translate(suitableSize.height, 0);
         ctx.rotate(0.5 * Math.PI)
-        ctx.translate(0, -canvas.height)
         break
       case 8:
         // 90° rotate left
         canvas.width = suitableSize.height
         canvas.height = suitableSize.width
+        ctx.translate(0, suitableSize.width);
         ctx.rotate(-0.5 * Math.PI)
-        ctx.translate(-canvas.width, 0)
         break
       default:
         break
