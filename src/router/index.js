@@ -23,10 +23,7 @@ export default new Router({
     {//界面：新建通知
       path: '/dynamic-publish',
       name: 'dynamic-publish',
-      component: dynamicPublish,
-      meta: {
-        keepAlive: true
-      }
+      component: dynamicPublish
     },
     {//界面：首页
       path: '/msg-home',
@@ -59,25 +56,16 @@ export default new Router({
       path: '/choose-container',
       name: 'choose-container',
       component: chooseContainer,
-      meta: {
-        keepAlive: false
-      },
       children: [
         {
           path: 'depart-person/:id/:path',
           name: 'depart-person',
-          component: departPerson,
-          meta: {
-            keepAlive: true
-          }
+          component: departPerson
         },
         {
           path: 'choose-depart/:id/:path',
           name: 'choose-depart',
-          component: chooseDepart,
-          meta: {
-            keepAlive: true
-          }
+          component: chooseDepart
         },
         {
           path: '',
@@ -99,10 +87,7 @@ export default new Router({
     {//界面：图片预览
       path: '/image-preview/:index',
       name: 'image-preview',
-      component: imagePreview,
-      meta: {
-        keepAlive: false
-      }
+      component: imagePreview
     }
   ]
 })

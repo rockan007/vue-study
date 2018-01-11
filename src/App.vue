@@ -1,7 +1,7 @@
 <!--App首页-->
 <template>
   <div id="app" style="background-color: white">
-    <keep-alive>
+    <keep-alive include="dynamic-publish,choose-container">
       <router-view v-bind:uploadFiles="uploadFiles"
                    v-on:uploadFiles="getUploadFiles"
                    v-on:chosePersons="getChosePerson"
